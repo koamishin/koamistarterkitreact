@@ -1,6 +1,6 @@
 {
   "$schema": "https://getcomposer.org/schema.json",
-  "name": "koamishin/koamistarterkit",
+  "name": "koamishin/koamistarterkitreact",
   "type": "project",
   "description": "KoamiStarterKit - A modern Laravel 13 starter kit with React 19, Inertia.js, Tailwind CSS, Fortify authentication, and Wayfinder routing. Production-ready with Octane, comprehensive testing setup with Pest, and automated CI/CD workflows.",
   "keywords": [
