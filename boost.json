@@ -1,7 +1,6 @@
 {
     "agents": [
-        "opencode",
-        "zed"
+        "opencode"
     ],
     "cloud": false,
     "guidelines": true,
@@ -9,9 +8,7 @@
     "nightwatch": false,
     "packages": [
         "filament/filament",
-        "pestphp/pest-plugin-agent",
-        "alizharb/filament-activity-log",
-        "yukazakiri/lepton-agent"
+        "pestphp/pest-plugin-agent"
     ],
     "sail": false,
     "skills": [
@@ -25,8 +22,6 @@
         "pest-testing",
         "inertia-react-development",
         "tailwindcss-development",
-        "lepton-agent-development",
-        "lepton-agent-settlement",
         "pest-plugin-agent"
     ]
 }

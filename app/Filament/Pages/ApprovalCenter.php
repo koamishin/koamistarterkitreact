@@ -25,11 +25,11 @@ class ApprovalCenter extends Page implements HasTable
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CheckBadge;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Finance records';
+    protected static string|UnitEnum|null $navigationGroup = 'Financial Operations';
 
-    protected static ?string $navigationLabel = 'Legacy Approval Center';
+    protected static ?string $navigationLabel = 'Approval Center';
 
-    protected static ?string $title = 'Legacy Approval Center';
+    protected static ?string $title = 'Approval Center';
 
     protected static ?int $navigationSort = 2;
 
@@ -62,7 +62,7 @@ class ApprovalCenter extends Page implements HasTable
                     ->color('gray'),
                 TextColumn::make('agentDecision.requested_amount')
                     ->label('Amount')
-                    ->formatStateUsing(fn ($state): string => number_format((float) $state, 2).' USDC')
+                    ->formatStateUsing(fn ($state) => number_format((float) $state, 2).' USDC')
                     ->weight('bold'),
                 TextColumn::make('agentDecision.policy_checked')
                     ->label('Policy Trigger')

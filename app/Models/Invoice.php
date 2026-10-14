@@ -41,7 +41,6 @@ class Invoice extends Model
         'metadata',
     ];
 
-    #[\Override]
     protected function casts(): array
     {
         return [
@@ -64,11 +63,6 @@ class Invoice extends Model
     public function budget(): BelongsTo
     {
         return $this->belongsTo(Budget::class);
-    }
-
-    public function hasExactVersion(): bool
-    {
-        return InvoiceVersion::query()->where('invoice_id', $this->id)->exists();
     }
 
     public function decisions(): MorphMany

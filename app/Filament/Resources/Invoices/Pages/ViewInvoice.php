@@ -12,7 +12,6 @@ class ViewInvoice extends ViewRecord
 {
     protected static string $resource = InvoiceResource::class;
 
-    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

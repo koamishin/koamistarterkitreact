@@ -9,7 +9,6 @@ use Filament\Support\Contracts\HasLabel;
 
 enum AssistanceStatus: string implements HasColor, HasLabel
 {
-    case SUBMITTED = 'submitted';
     case PENDING = 'pending';
     case IN_PROGRESS = 'in_progress';
     case RESOLVED = 'resolved';
@@ -18,7 +17,6 @@ enum AssistanceStatus: string implements HasColor, HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::SUBMITTED => 'Submitted',
             self::PENDING => 'Pending Review',
             self::IN_PROGRESS => 'In Progress',
             self::RESOLVED => 'Resolved',
@@ -29,7 +27,6 @@ enum AssistanceStatus: string implements HasColor, HasLabel
     public function getColor(): string|array|null
     {
         return match ($this) {
-            self::SUBMITTED => 'info',
             self::PENDING => 'warning',
             self::IN_PROGRESS => 'info',
             self::RESOLVED => 'success',

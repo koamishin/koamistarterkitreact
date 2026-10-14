@@ -16,17 +16,5 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolesAndPermissionsSeeder::class,
         ]);
-
-        if (app()->environment(['local', 'testing'])) {
-            // The financial seeders attach budgets and a treasury to the
-            // organization; the assistance request hangs off the student that
-            // EducationDemoSeeder creates.
-            $this->call([
-                DemoUsersSeeder::class,
-                EduFlowFinancialSeeder::class,
-                EducationDemoSeeder::class,
-                EduFlowPlanSeeder::class,
-            ]);
-        }
     }
 }

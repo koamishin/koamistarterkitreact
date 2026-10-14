@@ -1,9 +1,4 @@
-﻿export type ColorTheme =
-    | 'default'
-    | 'rose'
-    | 'ocean'
-    | 'sage-garden'
-    | 'claude';
+﻿export type ColorTheme = 'default' | 'rose' | 'ocean' | 'sage-garden' | 'claude';
 
 export type ThemeConfig = {
     id: ColorTheme;

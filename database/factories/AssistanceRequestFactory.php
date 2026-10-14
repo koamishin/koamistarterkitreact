@@ -7,9 +7,7 @@ namespace Database\Factories;
 use App\Enums\AssistanceCategory;
 use App\Enums\AssistancePriority;
 use App\Enums\AssistanceStatus;
-use App\Models\AcademicTerm;
 use App\Models\AssistanceRequest;
-use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -30,22 +28,15 @@ class AssistanceRequestFactory extends Factory
     {
         return [
             'ticket_number' => 'AST-'.strtoupper(Str::random(6)),
-            'student_id' => Student::factory(),
-            'academic_term_id' => AcademicTerm::factory(),
-            'user_id' => null,
+            'user_id' => User::factory(),
             'category' => fake()->randomElement(AssistanceCategory::cases()),
             'priority' => fake()->randomElement(AssistancePriority::cases()),
-            'status' => 'submitted',
+            'status' => AssistanceStatus::PENDING,
             'subject' => fake()->sentence(4),
             'description' => fake()->paragraph(),
             'admin_notes' => null,
             'assigned_to' => null,
             'resolved_at' => null,
-            'type' => 'emergency',
-            'requested_amount' => 10000000,
-            'reason' => fake()->paragraph(),
-            'submission_key' => fake()->uuid(),
-            'submitted_at' => now(),
         ];
     }
 

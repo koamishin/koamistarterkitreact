@@ -12,7 +12,6 @@ class ListInvoices extends ListRecords
 {
     protected static string $resource = InvoiceResource::class;
 
-    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

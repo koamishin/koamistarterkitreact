@@ -34,7 +34,6 @@ class Approval extends Model
         'approved_at',
     ];
 
-    #[\Override]
     protected function casts(): array
     {
         return [

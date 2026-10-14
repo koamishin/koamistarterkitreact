@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Filament\Resources\AssistanceRequests\Pages;
 
 use App\Filament\Resources\AssistanceRequests\AssistanceRequestResource;

@@ -12,7 +12,6 @@ use App\Models\Organization;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use Illuminate\Support\Carbon;
-use InvalidArgumentException;
 
 class FinancialPolicyEngine
 {
@@ -21,9 +20,6 @@ class FinancialPolicyEngine
      */
     public function evaluateInvoice(Invoice $invoice, Wallet $wallet): PolicyEvaluationResult
     {
-        if ($invoice->hasExactVersion()) {
-            throw new InvalidArgumentException('Versioned invoices cannot use legacy USDC policy evaluation.');
-        }
         $org = $invoice->organization;
         $vendor = $invoice->vendor;
         $budget = $invoice->budget;
@@ -139,7 +135,7 @@ class FinancialPolicyEngine
         float $autoAssistanceLimit = 100.00
     ): PolicyEvaluationResult {
         $checks = [
-            'budget_available' => ! $aidBudget instanceof Budget || $aidBudget->canAfford($requestedAmount),
+            'budget_available' => $aidBudget === null || $aidBudget->canAfford($requestedAmount),
             'reserve_protected' => ($wallet->balance - $requestedAmount) >= $org->minimum_reserve,
             'within_auto_aid_limit' => $requestedAmount <= $autoAssistanceLimit,
         ];

@@ -26,23 +26,20 @@ class InvoiceResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'reference';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Finance records';
+    protected static string|UnitEnum|null $navigationGroup = 'Financial Operations';
 
     protected static ?int $navigationSort = 3;
 
-    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return InvoiceForm::configure($schema);
     }
 
-    #[\Override]
     public static function table(Table $table): Table
     {
         return InvoicesTable::configure($table);
     }
 
-    #[\Override]
     public static function getPages(): array
     {
         return [

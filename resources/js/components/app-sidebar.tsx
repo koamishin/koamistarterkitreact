@@ -1,12 +1,5 @@
 import { Link } from '@inertiajs/react';
-import {
-    BookOpen,
-    FolderGit2,
-    HandCoins,
-    LayoutGrid,
-    ReceiptText,
-    Wallet,
-} from 'lucide-react';
+import { Bell, BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -21,9 +14,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { index as financialAssistanceIndex } from '@/routes/financial-assistance';
-import { index as paymentsIndex } from '@/routes/payments';
-import { show as walletShow } from '@/routes/student/wallet';
+import { index as notificationsIndex } from '@/routes/notifications';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -33,19 +24,9 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Financial Assistance',
-        href: financialAssistanceIndex(),
-        icon: HandCoins,
-    },
-    {
-        title: 'My Payments',
-        href: paymentsIndex(),
-        icon: ReceiptText,
-    },
-    {
-        title: 'My Wallet',
-        href: walletShow(),
-        icon: Wallet,
+        title: 'Notifications',
+        href: notificationsIndex(),
+        icon: Bell,
     },
 ];
 

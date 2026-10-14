@@ -25,7 +25,6 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.tsx',
                 'resources/css/filament/admin/theme.css',
-                'resources/css/filament/finance/theme.css',
                 ...moduleEntries,
             ],
             refresh: true,

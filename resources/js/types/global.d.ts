@@ -1,5 +1,4 @@
 import type { Auth } from '@/types/auth';
-import type { DashboardNotificationSummary } from '@/types/assistance';
 
 declare module 'react' {
     interface InputHTMLAttributes<T> {
@@ -12,7 +11,6 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
-            notificationSummary: DashboardNotificationSummary | null;
             sidebarOpen: boolean;
             [key: string]: unknown;
         };

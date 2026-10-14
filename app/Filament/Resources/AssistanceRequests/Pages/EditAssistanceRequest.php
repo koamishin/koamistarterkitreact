@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Filament\Resources\AssistanceRequests\Pages;
 
 use App\Filament\Resources\AssistanceRequests\AssistanceRequestResource;
@@ -13,7 +11,6 @@ class EditAssistanceRequest extends EditRecord
 {
     protected static string $resource = AssistanceRequestResource::class;
 
-    #[\Override]
     protected function getHeaderActions(): array
     {
         return [
