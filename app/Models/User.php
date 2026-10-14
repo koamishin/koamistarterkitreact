@@ -16,6 +16,7 @@ use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -37,6 +38,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
+ * @property string|null $wallet_address
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -57,7 +59,17 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasRole('super_admin');
+        return match ($panel->getId()) {
+            'finance' => $this->hasAnyRole(['admin', 'finance_officer', 'super_admin']),
+            'admin' => $this->hasRole('super_admin'),
+            default => false,
+        };
+    }
+
+    /** @return HasOne<Student, $this> */
+    public function student(): HasOne
+    {
+        return $this->hasOne(Student::class);
     }
 
     public function canImpersonate(): bool
@@ -68,7 +80,9 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll();
+            ->logOnly(['name', 'email', 'email_verified_at', 'profile_photo_path'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function canBeImpersonated(): bool
@@ -86,6 +100,7 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         'email',
         'password',
         'profile_photo_path',
+        'wallet_address',
     ];
 
     /**
@@ -156,5 +171,35 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     public function assistanceRequests(): HasMany
     {
         return $this->hasMany(AssistanceRequest::class);
+    }
+
+    /**
+     * Monetary assistance requests evaluated by the EduFlow agent.
+     *
+     * @return HasMany<StudentAssistanceRequest, $this>
+     */
+    public function studentAssistanceRequests(): HasMany
+    {
+        return $this->hasMany(StudentAssistanceRequest::class);
+    }
+
+    /**
+     * Payouts sent to this student's wallet address.
+     *
+     * @return HasMany<Transaction, $this>
+     */
+    public function payouts(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'recipient_address', 'wallet_address');
+    }
+
+    /**
+     * AI chat sessions for this user.
+     *
+     * @return HasMany<ChatSession, $this>
+     */
+    public function chatSessions(): HasMany
+    {
+        return $this->hasMany(ChatSession::class)->latest('updated_at');
     }
 }

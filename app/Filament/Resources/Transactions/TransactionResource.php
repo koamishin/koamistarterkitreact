@@ -20,15 +20,17 @@ class TransactionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ArrowsRightLeft;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Financial Operations';
+    protected static string|UnitEnum|null $navigationGroup = 'Finance records';
 
     protected static ?int $navigationSort = 4;
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return TransactionsTable::configure($table);
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

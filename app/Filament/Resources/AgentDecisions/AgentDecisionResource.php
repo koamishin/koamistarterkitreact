@@ -20,17 +20,19 @@ class AgentDecisionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Sparkles;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Financial Operations';
+    protected static string|UnitEnum|null $navigationGroup = 'Finance records';
 
     protected static ?string $navigationLabel = 'AI Decision Log';
 
     protected static ?int $navigationSort = 5;
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return AgentDecisionsTable::configure($table);
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

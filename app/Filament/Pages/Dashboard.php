@@ -4,75 +4,262 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use App\Agents\EduFlowAgent;
+use App\Filament\Widgets\AdoptionActivityChart;
+use App\Filament\Widgets\AgentActivityFeedWidget;
+use App\Filament\Widgets\InstallationReadinessWidget;
+use App\Filament\Widgets\LeptonNetworkWidget;
+use App\Filament\Widgets\TreasuryOverviewWidget;
+use App\Models\AiProvider;
 use App\Models\Organization;
-use App\Services\CircleWalletService;
+use App\Models\Student;
+use App\Models\User;
+use App\Services\InstallationInstitution;
+use App\Services\LeptonTreasuryService;
+use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Dashboard as BaseDashboard;
+use Filament\Schemas\Components\Grid as InfoGrid;
+use Filament\Schemas\Components\Section as InfoSection;
 use Filament\Support\Icons\Heroicon;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\Widget;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
+/**
+ * Installation and operations console for the super administrator.
+ *
+ * This panel governs the instance — identity, rail binding, staff, providers,
+ * settings — and deliberately does not move money. The cashier, accounting
+ * and supervisor workflow lives in the finance panel, so the two never blur
+ * into one surface that looks equally safe to click from.
+ */
 class Dashboard extends BaseDashboard
 {
-    protected static string|\BackedEnum|null $navigationIcon = Heroicon::Home;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHome;
 
-    public function getTitle(): string
+    protected static ?string $navigationLabel = 'Overview';
+
+    protected static ?string $title = 'Installation & operations';
+
+    #[\Override]
+    public function getSubheading(): ?string
     {
-        return 'EduFlow AI — Autonomous Financial Operator';
+        $institution = app(InstallationInstitution::class)->current();
+
+        if ($institution === null) {
+            return 'Institution context unavailable. Run php artisan eduflow:install; data is never selected by row order.';
+        }
+
+        $status = app(LeptonTreasuryService::class)->status($institution->primaryWallet());
+
+        return sprintf(
+            '%s · %s driver on %s %s%s · finance supervision: %s',
+            $institution->name,
+            $status['driver'],
+            strtoupper((string) $status['chain']),
+            (string) $status['chain_id'],
+            $status['is_fake'] ? ' · FAKE DRIVER' : '',
+            Filament::getPanel('finance')->getUrl(),
+        );
     }
 
+    /**
+     * Explicit rather than inherited: without this the panel renders every
+     * registered widget, so an unrelated plugin widget can appear beside
+     * settlement figures that operators will read as authoritative.
+     *
+     * @return array<class-string<Widget>>
+     */
+    #[\Override]
+    public function getWidgets(): array
+    {
+        return [
+            InstallationReadinessWidget::class,
+            AdoptionActivityChart::class,
+            LeptonNetworkWidget::class,
+            TreasuryOverviewWidget::class,
+            AgentActivityFeedWidget::class,
+            AccountWidget::class,
+        ];
+    }
+
+    /** @return int|array<string, int|null> */
+    #[\Override]
+    public function getColumns(): int|array
+    {
+        return ['default' => 1, 'lg' => 2, 'xl' => 3];
+    }
+
+    /**
+     * The legacy autonomous cycle writes a ledger row without touching the
+     * chain, which is the fabricated-receipt pattern the pilot contract
+     * forbids. Recorded receipts belong in cashier collection batches, which
+     * require independent review before they can fund anything.
+     */
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('receiveRevenue')
-                ->label('Receive Tuition Revenue (+10,000 USDC)')
-                ->icon('heroicon-m-arrow-down-tray')
-                ->color('success')
-                ->requiresConfirmation()
-                ->modalHeading('Deposit Tuition Revenue on Arc')
-                ->modalDescription('Simulates an incoming student tuition batch of 10,000 USDC into Northstar Learning Center\'s Circle Wallet.')
-                ->action(function (CircleWalletService $circleService): void {
-                    $org = Organization::first();
-                    $wallet = $org?->primaryWallet();
+            Action::make('createUser')
+                ->label('Add user')
+                ->icon(Heroicon::UserPlus)
+                ->color('primary')
+                ->modalHeading('Create system or staff user')
+                ->modalDescription('Provisions an operator or student account with assigned roles and credentials.')
+                ->schema([
+                    TextInput::make('name')
+                        ->label('Full name')
+                        ->required()
+                        ->maxLength(255),
+                    TextInput::make('email')
+                        ->label('Email address')
+                        ->email()
+                        ->required()
+                        ->unique('users', 'email'),
+                    Select::make('role')
+                        ->label('Initial role')
+                        ->options([
+                            'admin' => 'Administrator',
+                            'finance_officer' => 'Finance officer',
+                            'user' => 'Standard user',
+                        ])
+                        ->default('finance_officer')
+                        ->required(),
+                    TextInput::make('password')
+                        ->label('Password')
+                        ->password()
+                        ->revealable()
+                        ->required()
+                        ->minLength(8),
+                ])
+                ->action(function (array $data): void {
+                    $user = User::query()->create([
+                        'name' => $data['name'],
+                        'email' => $data['email'],
+                        'password' => Hash::make((string) $data['password']),
+                        'email_verified_at' => now(),
+                    ]);
 
-                    if (! $wallet) {
-                        Notification::make()->title('Organization wallet not found')->danger()->send();
-
-                        return;
+                    if (Role::query()->where('name', $data['role'])->exists()) {
+                        $user->assignRole($data['role']);
                     }
 
-                    $tx = $circleService->receiveRevenue($wallet, 10000.00, '0xstudent_tuition_batch', 'Fall Semester Tuition Revenue Deposit');
-
                     Notification::make()
-                        ->title('Revenue Received')
-                        ->body('+10,000.00 USDC confirmed on Arc. New Treasury: '.number_format($wallet->fresh()->balance, 2)." USDC. Tx: {$tx->provider_tx_hash}")
+                        ->title('User created successfully')
+                        ->body("User {$user->email} has been created and assigned the {$data['role']} role.")
                         ->success()
                         ->send();
                 }),
 
-            Action::make('runAutonomousCycle')
-                ->label('Run Autonomous Agent Cycle')
-                ->icon('heroicon-m-bolt')
-                ->color('primary')
+            Action::make('systemDiagnostics')
+                ->label('Diagnostics')
+                ->icon(Heroicon::CpuChip)
+                ->color('gray')
+                ->modalHeading('System health & infrastructure status')
+                ->modalDescription('Real-time operational status of infrastructure components.')
+                ->infolist([
+                    InfoSection::make('Environment & Runtime')
+                        ->schema([
+                            InfoGrid::make(3)->schema([
+                                TextEntry::make('php_version')
+                                    ->label('PHP Version')
+                                    ->badge()
+                                    ->color('info')
+                                    ->state(fn (): string => PHP_VERSION),
+                                TextEntry::make('laravel_version')
+                                    ->label('Laravel Framework')
+                                    ->badge()
+                                    ->color('info')
+                                    ->state(fn (): string => app()->version()),
+                                TextEntry::make('environment')
+                                    ->label('Environment')
+                                    ->badge()
+                                    ->color(app()->isProduction() ? 'success' : 'warning')
+                                    ->state(fn (): string => app()->environment()),
+                            ]),
+                        ]),
+                    InfoSection::make('Services & Storage')
+                        ->schema([
+                            InfoGrid::make(3)->schema([
+                                TextEntry::make('database_status')
+                                    ->label('Database Connection')
+                                    ->badge()
+                                    ->color('success')
+                                    ->state(function (): string {
+                                        try {
+                                            DB::connection()->getPdo();
+
+                                            return 'Connected ('.config('database.default').')';
+                                        } catch (\Throwable $e) {
+                                            return 'Disconnected: '.$e->getMessage();
+                                        }
+                                    }),
+                                TextEntry::make('queue_status')
+                                    ->label('Queue Driver')
+                                    ->badge()
+                                    ->color('info')
+                                    ->state(fn (): string => (string) config('queue.default')),
+                                TextEntry::make('ai_providers_count')
+                                    ->label('Active AI Providers')
+                                    ->badge()
+                                    ->color(AiProvider::query()->where('is_active', true)->exists() ? 'success' : 'gray')
+                                    ->state(fn (): string => (string) AiProvider::query()->where('is_active', true)->count()),
+                            ]),
+                        ]),
+                    InfoSection::make('Installation Boundary')
+                        ->schema([
+                            InfoGrid::make(2)->schema([
+                                TextEntry::make('current_institution')
+                                    ->label('Institution Context')
+                                    ->state(function (): string {
+                                        $institution = app(InstallationInstitution::class)->current();
+
+                                        return $institution instanceof Organization ? $institution->name : 'Not configured';
+                                    }),
+                                TextEntry::make('students_enrolled')
+                                    ->label('Enrolled Students')
+                                    ->state(fn (): string => (string) Student::query()->count()),
+                            ]),
+                        ]),
+                ])
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Close'),
+
+            Action::make('aiIntelligence')
+                ->label('AI intelligence')
+                ->icon(Heroicon::Sparkles)
+                ->color('info')
+                ->url(fn (): string => AdminAiChat::getUrl()),
+
+            Action::make('financeConsole')
+                ->label('Finance console')
+                ->icon(Heroicon::Banknotes)
+                ->color('warning')
+                ->url(fn (): string => Filament::getPanel('finance')->getUrl()),
+
+            Action::make('clearCache')
+                ->label('Purge cache')
+                ->icon(Heroicon::ArrowPath)
+                ->color('gray')
                 ->requiresConfirmation()
-                ->modalHeading('Execute Autonomous Financial Cycle')
-                ->modalDescription('EduFlow AI will observe pending invoices, forecast 30-day liquidity, evaluate deterministic policies, auto-disburse approved USDC on Arc, and escalate high-value payments to the Approval Center.')
-                ->action(function (EduFlowAgent $agent): void {
-                    $org = Organization::first();
-
-                    if (! $org) {
-                        Notification::make()->title('No organization found. Please run seeder.')->danger()->send();
-
-                        return;
-                    }
-
-                    $result = $agent->runAutonomousCycle($org);
+                ->modalHeading('Purge application cache?')
+                ->modalDescription('Flushes the system configuration, route and compiled template caches.')
+                ->action(function (): void {
+                    Artisan::call('cache:clear');
+                    Artisan::call('view:clear');
 
                     Notification::make()
-                        ->title('EduFlow AI — Cycle Completed')
-                        ->body("Auto-Paid: {$result['stats']['auto_paid']} | Escalated: {$result['stats']['escalated']} | Held: {$result['stats']['held']}. Disbursed: {$result['stats']['total_disbursed_usdc']} USDC on Arc.")
+                        ->title('System caches purged')
+                        ->body('Configuration and view caches have been cleared.')
                         ->success()
-                        ->persistent()
                         ->send();
                 }),
         ];

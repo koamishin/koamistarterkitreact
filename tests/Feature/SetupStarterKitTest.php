@@ -154,7 +154,7 @@ test('setup starter kit command has correct signature and description', function
 
     expect($command->getName())->toBe('setup:starter-kit')
         ->and($command->getDescription())->toContain('KoamiStarterKit')
-        ->and($command)->toBeInstanceOf(Command::class);
+        ->and((new ReflectionClass($command))->isSubclassOf(Command::class))->toBeTrue();
 });
 
 test('setup starter kit exposes scriptable options', function (): void {
@@ -547,31 +547,26 @@ test('workflow files are updated on disk in sandbox', function (): void {
 
 // ─── Release workflow template standards ─────────────────────────────────
 
-test('rolling workflow uses semver docker tags and proper prerelease versions', function (): void {
+test('rolling workflow publishes versioned previews without replacing stable images', function (): void {
     $content = File::get(base_path('.github/workflows/auto-release.yml'));
 
-    expect($content)->toContain('type=semver,pattern={{version}}')
-        ->and($content)->toContain('type=raw,value=beta')
-        ->and($content)->toContain('type=raw,value=latest')
-        ->and($content)->toContain('type=raw,value=dev-latest')
-        ->and($content)->toContain('type=sha,prefix=sha-,format=short')
-        ->and($content)->not->toContain('type=ref,event=branch')
-        ->and($content)->not->toContain('release_type }}-')
+    expect($content)->toContain("version = '0.0.0-preview.'")
+        ->and($content)->toContain('image }}:${{ steps.identity.outputs.version }}')
+        ->and($content)->toContain('image }}:preview')
+        ->and($content)->toContain('image }}:sha-${{ github.event.workflow_run.head_sha }}')
+        ->and($content)->toContain('prerelease: true')
+        ->and($content)->not->toContain(':latest')
         ->and($content)->not->toContain('PACKAGIST')
-        ->and($content)->not->toContain('Notify Packagist')
-        ->and($content)->toContain('TAG="v${BASE_VERSION}-${PRERELEASE_PREFIX}.${DEV_NUMBER}"');
+        ->and($content)->not->toContain('Notify Packagist');
 });
 
-test('official release workflow uses the docker hub semver tag ladder', function (): void {
+test('official release workflow uses immutable versions and guarded stable tags', function (): void {
     $content = File::get(base_path('.github/workflows/manual-official-release.yml'));
 
-    expect($content)->toContain('type=semver,pattern={{version}}')
-        ->and($content)->toContain('type=semver,pattern={{major}}.{{minor}}')
-        ->and($content)->toContain('type=semver,pattern={{major}}')
-        ->and($content)->toContain('type=raw,value=latest')
-        ->and($content)->toContain('type=sha,prefix=sha-,format=short')
-        ->and($content)->not->toContain('type=ref,event=branch')
-        ->and($content)->not->toContain('stable-${{ github.sha }}')
+    expect($content)->toContain("tags = [os.environ['IMAGE'] + ':' + os.environ['VERSION']]")
+        ->and($content)->toContain("if os.environ['PUBLISH_LATEST'] == 'true':")
+        ->and($content)->toContain('Drafts and prereleases cannot update stable latest.')
+        ->and($content)->toContain('immutable versions cannot be overwritten')
         ->and($content)->not->toContain('PACKAGIST')
         ->and($content)->not->toContain('Notify Packagist');
 });
@@ -740,10 +735,11 @@ test('push is skipped without git metadata or with no-push flag', function (): v
 
     try {
         // No .git directory: returns before any process call.
-        invokeSetupMethod(makeSetupCommandWithOptions([]), 'maybePushToOrigin', ['acme-corp', 'my-app', true, true, $dir]);
-        invokeSetupMethod(makeSetupCommandWithOptions(['--no-push' => true]), 'maybePushToOrigin', ['acme-corp', 'my-app', true, true, $dir]);
+        $withoutGit = invokeSetupMethod(makeSetupCommandWithOptions([]), 'maybePushToOrigin', ['acme-corp', 'my-app', true, true, $dir]);
+        $pushDisabled = invokeSetupMethod(makeSetupCommandWithOptions(['--no-push' => true]), 'maybePushToOrigin', ['acme-corp', 'my-app', true, true, $dir]);
 
-        expect(true)->toBeTrue();
+        expect($withoutGit)->toBeNull()->and($pushDisabled)->toBeNull()
+            ->and(is_dir($dir.'/.git'))->toBeFalse();
     } finally {
         removeStarterKitSandbox($dir);
     }
@@ -811,6 +807,6 @@ test('workflow file exists and can be read', function (): void {
     expect(File::exists($workflowPath))->toBeTrue();
 
     $content = File::get($workflowPath);
-    expect($content)->toContain('REGISTRY')
-        ->toContain('IMAGE_NAME');
+    expect($content)->toContain('ghcr.io/')
+        ->toContain('workflow_run:');
 });
