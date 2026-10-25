@@ -16,7 +16,7 @@ use Inertia\Response;
 
 class FeatureFlagsController extends Controller
 {
-    public function edit(Request $request, FeatureEvaluator $evaluator): Response
+    public function edit(Request $request, FeatureEvaluator $featureEvaluator): Response
     {
         FeatureRegistry::initialize();
         $flags = FeatureFlag::query()->get()->keyBy('key');
@@ -28,7 +28,7 @@ class FeatureFlagsController extends Controller
             if (! $controllable) {
                 continue;
             }
-            $result = $evaluator->evaluate($key, $request->user());
+            $result = $featureEvaluator->evaluate($key, $request->user());
             $features[] = [
                 'key' => $key, 'name' => $flag->name ?? FeatureRegistry::get($key)?->get('name'),
                 'description' => $flag->description ?? FeatureRegistry::get($key)?->get('description'),
@@ -40,15 +40,15 @@ class FeatureFlagsController extends Controller
         return Inertia::render('settings/features', ['features' => $features, 'betaOptedIn' => $request->user()->beta_opted_in_at !== null]);
     }
 
-    public function update(FeaturePreferenceRequest $request, FeatureEvaluator $evaluator): RedirectResponse
+    public function update(FeaturePreferenceRequest $featurePreferenceRequest, FeatureEvaluator $featureEvaluator): RedirectResponse
     {
-        $data = $request->validated();
+        $data = $featurePreferenceRequest->validated();
         $flag = FeatureFlag::query()->where('key', $data['feature'])->first();
         $controllable = $flag->user_controllable ?? in_array($data['feature'], ['email-notifications', 'marketing-emails', 'activity-tracking'], true);
-        abort_unless($controllable && $evaluator->evaluate($data['feature'], $request->user(), false)['available'], 403);
+        abort_unless($controllable && $featureEvaluator->evaluate($data['feature'], $featurePreferenceRequest->user(), false)['available'], 403);
         $flag ??= FeatureManifest::ensure($data['feature']);
         FeatureAssignment::query()->updateOrCreate([
-            'feature_flag_id' => $flag->id, 'user_id' => $request->user()->id, 'kind' => 'preference',
+            'feature_flag_id' => $flag->id, 'user_id' => $featurePreferenceRequest->user()->id, 'kind' => 'preference',
         ], ['active' => $data['active']]);
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Feature preference updated.']);
 

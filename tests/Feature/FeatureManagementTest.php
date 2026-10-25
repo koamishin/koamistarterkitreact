@@ -52,9 +52,9 @@ test('percentage rollout is deterministic and expanding cohorts retains users', 
     foreach ($first as $user) {
         expect(FeatureRegistry::isEnabledForUser($user, $flag->key))->toBeTrue();
     }
-    $evaluator = app(FeatureEvaluator::class);
+    $featureEvaluator = app(FeatureEvaluator::class);
     foreach ($users as $user) {
-        expect($evaluator->bucket($flag->key, $user))->toBe($evaluator->bucket($flag->key, $user));
+        expect($featureEvaluator->bucket($flag->key, $user))->toBe($featureEvaluator->bucket($flag->key, $user));
     }
     $flag->update(['rollout_percentage' => 0]);
     expect(FeatureRegistry::isEnabledForUser($users->first(), $flag->key))->toBeFalse();
@@ -158,7 +158,7 @@ test('beta preference validates and guests cannot enroll', function (): void {
     $this->patch(route('profile.beta.update'), ['enabled' => true])->assertRedirect(route('login'));
     $user = User::factory()->create();
     $this->actingAs($user)->patch(route('profile.beta.update'), ['enabled' => 'bad'])->assertSessionHasErrors('enabled');
-    $this->get(route('profile.edit'))->assertInertia(fn (AssertableInertia $page) => $page->where('betaOptedIn', false));
+    $this->get(route('profile.edit'))->assertInertia(fn (AssertableInertia $assertableInertia): \Inertia\Testing\AssertableInertia => $assertableInertia->where('betaOptedIn', false));
 });
 
 test('manifest round trips only definitions and refuses accidental overwrite', function (): void {
@@ -175,7 +175,7 @@ test('invalid manifest is rejected atomically', function (): void {
     $flag = FeatureFlag::factory()->create();
     $manifest = FeatureManifest::export();
     $manifest['features'][0]['rollout_percentage'] = 101;
-    expect(fn () => FeatureManifest::import($manifest, true))->toThrow(ValidationException::class);
+    expect(fn (): int => FeatureManifest::import($manifest, true))->toThrow(ValidationException::class);
     expect($flag->fresh()->rollout_percentage)->toBe(100);
 });
 
@@ -192,10 +192,10 @@ test('release promotion is exact audited and preserves kill switch and rollout',
 test('sync is idempotent and keeps managed settings', function (): void {
     FeatureManifest::sync();
     $count = FeatureFlag::query()->count();
-    $flag = FeatureFlag::query()->where('key', 'settings_profile')->firstOrFail();
-    $flag->update(['enabled' => false]);
+    $featureFlag = FeatureFlag::query()->where('key', 'settings_profile')->firstOrFail();
+    $featureFlag->update(['enabled' => false]);
     $this->artisan('features:manifest', ['operation' => 'sync'])->assertSuccessful();
-    expect(FeatureFlag::query()->count())->toBe($count)->and($flag->fresh()->enabled)->toBeFalse();
+    expect(FeatureFlag::query()->count())->toBe($count)->and($featureFlag->fresh()->enabled)->toBeFalse();
 });
 
 test('feature management rejects ordinary users', function (): void {
@@ -215,10 +215,10 @@ test('admin can create target preview promote pause and audit flags', function (
         'key' => 'new-search', 'name' => 'New search', 'stage' => 'beta', 'enabled' => true,
         'default_value' => true, 'user_controllable' => true, 'rollout_percentage' => 100,
     ])->assertHasNoFormErrors();
-    $flag = FeatureFlag::query()->where('key', 'new-search')->firstOrFail();
-    Livewire::test(ListFeatureFlags::class)->callAction(TestAction::make('promote')->table($flag))->assertHasNoActionErrors();
-    expect($flag->fresh()->stage)->toBe(FeatureStage::Stable);
-    Livewire::test(ListFeatureFlags::class)->callAction(TestAction::make('kill')->table($flag))->assertHasNoActionErrors();
-    expect($flag->fresh()->enabled)->toBeFalse();
-    Livewire::test(ListFeatureFlags::class)->callAction(TestAction::make('preview')->table($flag), data: ['user_id' => $admin->id])->assertHasNoActionErrors();
+    $featureFlag = FeatureFlag::query()->where('key', 'new-search')->firstOrFail();
+    Livewire::test(ListFeatureFlags::class)->callAction(TestAction::make('promote')->table($featureFlag))->assertHasNoActionErrors();
+    expect($featureFlag->fresh()->stage)->toBe(FeatureStage::Stable);
+    Livewire::test(ListFeatureFlags::class)->callAction(TestAction::make('kill')->table($featureFlag))->assertHasNoActionErrors();
+    expect($featureFlag->fresh()->enabled)->toBeFalse();
+    Livewire::test(ListFeatureFlags::class)->callAction(TestAction::make('preview')->table($featureFlag), data: ['user_id' => $admin->id])->assertHasNoActionErrors();
 });

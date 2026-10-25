@@ -79,7 +79,7 @@ test('login screen does not include developer users in non-local environment', f
     $response = $this->get(route('login'));
 
     $response->assertOk();
-    $response->assertInertia(fn (Assert $page) => $page
+    $response->assertInertia(fn (Assert $assert): \Inertia\Testing\AssertableInertia => $assert
         ->component('auth/login')
         ->where('developerUsers', [])
     );
@@ -100,7 +100,7 @@ test('login screen includes developer users with role labels in local environmen
     $response = $this->get(route('login'));
 
     $response->assertOk();
-    $response->assertInertia(fn (Assert $page) => $page
+    $response->assertInertia(fn (Assert $assert): \Inertia\Testing\AssertableInertia => $assert
         ->component('auth/login')
         ->has('developerUsers', 2)
         ->where('developerUsers.0.email', 'admin@admin.com')

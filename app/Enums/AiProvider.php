@@ -121,7 +121,7 @@ enum AiProvider: string
     public static function options(): array
     {
         return collect(self::cases())
-            ->mapWithKeys(fn (AiProvider $provider): array => [$provider->value => $provider->label()])
+            ->mapWithKeys(fn (AiProvider $aiProvider): array => [$aiProvider->value => $aiProvider->label()])
             ->all();
     }
 

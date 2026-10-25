@@ -100,7 +100,7 @@ class AiSettingsPage extends Page
                                 ->revealable()
                                 ->maxLength(255)
                                 ->visible(fn (): bool => $this->provider()?->requiresApiKey() ?? true)
-                                ->required(fn (): bool => (bool) $this->getEnabled()
+                                ->required(fn (): bool => $this->getEnabled()
                                     && ($this->provider()?->requiresApiKey() ?? true)
                                     && ! $this->usesEnvApiKey)
                                 ->helperText(fn (): string => $this->usesEnvApiKey

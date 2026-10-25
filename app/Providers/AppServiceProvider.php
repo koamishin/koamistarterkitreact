@@ -66,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
 
         $featureManager = app(FeatureManager::class);
 
-        $featureManager->extend('managed', fn ($app) => new ManagedFeatureDriver(
+        $featureManager->extend('managed', fn ($app): \App\Features\ManagedFeatureDriver => new ManagedFeatureDriver(
             $app['db'], $app['events'], $app['config'], 'database', [],
         ));
 

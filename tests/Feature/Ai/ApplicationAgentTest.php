@@ -106,9 +106,9 @@ test('agent only exposes local tools when mcp is disabled', function (): void {
 test('agent prompts can be faked', function (): void {
     ApplicationAgent::fake(['The answer is 42.']);
 
-    $response = app(ApplicationAgent::class)->prompt('What is the answer?');
+    $agentResponse = app(ApplicationAgent::class)->prompt('What is the answer?');
 
-    expect($response->text)->toBe('The answer is 42.');
+    expect($agentResponse->text)->toBe('The answer is 42.');
 
     ApplicationAgent::assertPrompted('What is the answer?');
 });

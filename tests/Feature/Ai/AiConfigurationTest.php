@@ -34,9 +34,9 @@ function fakeMcpTool(): Tool
     };
 }
 
-function fakeMcpServerConnector(array $tools = [], ?Throwable $throws = null): McpServerConnector
+function fakeMcpServerConnector(array $tools = [], ?Throwable $throwable = null): McpServerConnector
 {
-    return new class($tools, $throws) implements McpServerConnector
+    return new class($tools, $throwable) implements McpServerConnector
     {
         public array $servers = [];
 
@@ -49,7 +49,7 @@ function fakeMcpServerConnector(array $tools = [], ?Throwable $throws = null): M
         {
             $this->servers[] = $server['name'];
 
-            if ($this->throws !== null) {
+            if ($this->throws instanceof \Throwable) {
                 throw $this->throws;
             }
 
@@ -141,7 +141,7 @@ test('ai is only enabled when the toggle is on and credentials exist', function 
     expect(app(AiConfiguration::class)->isEnabled())->toBeTrue();
 });
 
-test('mcp tools are gathered from every configured server', function () {
+test('mcp tools are gathered from every configured server', function (): void {
     $aiSettings = app(AiSettings::class);
     $aiSettings->mcp_enabled = true;
     $aiSettings->mcp_servers = [
@@ -152,17 +152,17 @@ test('mcp tools are gathered from every configured server', function () {
 
     app()->forgetInstance(AiSettings::class);
 
-    $connector = fakeMcpServerConnector([fakeMcpTool()]);
-    $this->app->instance(McpServerConnector::class, $connector);
+    $mcpServerConnector = fakeMcpServerConnector([fakeMcpTool()]);
+    $this->app->instance(McpServerConnector::class, $mcpServerConnector);
 
     $tools = app(AiConfiguration::class)->mcpTools();
 
     expect($tools)->toHaveCount(2)
-        ->and($connector->servers)->toBe(['first', 'second'])
+        ->and($mcpServerConnector->servers)->toBe(['first', 'second'])
         ->and(app(AiConfiguration::class)->isMcpEnabled())->toBeTrue();
 });
 
-test('invalid mcp servers are skipped', function () {
+test('invalid mcp servers are skipped', function (): void {
     $aiSettings = app(AiSettings::class);
     $aiSettings->mcp_enabled = true;
     $aiSettings->mcp_servers = [
@@ -173,14 +173,14 @@ test('invalid mcp servers are skipped', function () {
 
     app()->forgetInstance(AiSettings::class);
 
-    $connector = fakeMcpServerConnector([fakeMcpTool()]);
-    $this->app->instance(McpServerConnector::class, $connector);
+    $mcpServerConnector = fakeMcpServerConnector([fakeMcpTool()]);
+    $this->app->instance(McpServerConnector::class, $mcpServerConnector);
 
     expect(app(AiConfiguration::class)->mcpTools())->toHaveCount(1)
-        ->and($connector->servers)->toBe(['working']);
+        ->and($mcpServerConnector->servers)->toBe(['working']);
 });
 
-test('mcp tools are empty when mcp is disabled', function () {
+test('mcp tools are empty when mcp is disabled', function (): void {
     $aiSettings = app(AiSettings::class);
     $aiSettings->mcp_enabled = false;
     $aiSettings->mcp_servers = [
@@ -190,15 +190,15 @@ test('mcp tools are empty when mcp is disabled', function () {
 
     app()->forgetInstance(AiSettings::class);
 
-    $connector = fakeMcpServerConnector([fakeMcpTool()]);
-    $this->app->instance(McpServerConnector::class, $connector);
+    $mcpServerConnector = fakeMcpServerConnector([fakeMcpTool()]);
+    $this->app->instance(McpServerConnector::class, $mcpServerConnector);
 
     expect(app(AiConfiguration::class)->mcpTools())->toBe([])
         ->and(app(AiConfiguration::class)->isMcpEnabled())->toBeFalse()
-        ->and($connector->servers)->toBe([]);
+        ->and($mcpServerConnector->servers)->toBe([]);
 });
 
-test('a failing mcp server does not break tool discovery', function () {
+test('a failing mcp server does not break tool discovery', function (): void {
     $aiSettings = app(AiSettings::class);
     $aiSettings->mcp_enabled = true;
     $aiSettings->mcp_servers = [
@@ -216,7 +216,7 @@ test('a failing mcp server does not break tool discovery', function () {
     expect(app(AiConfiguration::class)->mcpTools())->toBe([]);
 });
 
-test('the laravel mcp connector builds clients from server definitions', function () {
+test('the laravel mcp connector builds clients from server definitions', function (): void {
     $connector = new LaravelMcpServerConnector;
 
     $reflection = new ReflectionMethod($connector, 'client');

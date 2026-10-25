@@ -33,14 +33,13 @@ class LaravelMcpServerConnector implements McpServerConnector
             return Client::local($server['command'], $server['arguments']);
         }
 
-        /** @var WebClient $client */
-        $client = Client::web($server['url'])
+        $webClient = Client::web($server['url'])
             ->withTimeout((float) $server['timeout']);
 
         if (filled($server['token'])) {
-            $client->withToken($server['token']);
+            $webClient->withToken($server['token']);
         }
 
-        return $client;
+        return $webClient;
     }
 }

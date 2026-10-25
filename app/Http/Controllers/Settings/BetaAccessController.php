@@ -10,11 +10,11 @@ use Laravel\Pennant\Feature;
 
 class BetaAccessController extends Controller
 {
-    public function update(BetaAccessRequest $request): RedirectResponse
+    public function update(BetaAccessRequest $betaAccessRequest): RedirectResponse
     {
-        $user = $request->user();
+        $user = $betaAccessRequest->user();
         $user->forceFill([
-            'beta_opted_in_at' => $request->boolean('enabled') ? ($user->beta_opted_in_at ?? now()) : null,
+            'beta_opted_in_at' => $betaAccessRequest->boolean('enabled') ? ($user->beta_opted_in_at ?? now()) : null,
         ])->save();
         Feature::flushCache();
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Beta access preference updated.']);

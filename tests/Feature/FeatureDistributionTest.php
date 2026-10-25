@@ -16,7 +16,7 @@ use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 
 test('feature route middleware enforces backend access and fails closed', function (): void {
-    Route::get('/test-managed-feature', fn () => 'Enabled')->middleware(['web', 'feature:managed-route']);
+    Route::get('/test-managed-feature', fn (): string => 'Enabled')->middleware(['web', 'feature:managed-route']);
     $flag = FeatureFlag::factory()->create(['key' => 'managed-route', 'enabled' => false]);
     $this->get('/test-managed-feature')->assertNotFound();
     $flag->update(['enabled' => true]);
@@ -26,7 +26,7 @@ test('feature route middleware enforces backend access and fails closed', functi
 test('frontend receives evaluated booleans not targeting definitions', function (): void {
     $user = User::factory()->create();
     FeatureFlag::factory()->create(['key' => 'beta-search', 'stage' => 'beta', 'rules' => [['attribute' => 'email_domain', 'values' => ['internal.example']]]]);
-    $this->actingAs($user)->get(route('profile.edit'))->assertInertia(fn (AssertableInertia $page) => $page
+    $this->actingAs($user)->get(route('profile.edit'))->assertInertia(fn (AssertableInertia $assertableInertia): \Inertia\Testing\AssertableInertia => $assertableInertia
         ->where('featureFlags.beta-search', false)->missing('featureFlags.rules'));
 });
 
@@ -64,9 +64,9 @@ test('admin workflows support overrides history rollback and release promotion',
     expect($flag->assignments()->count())->toBe(0);
     Livewire::test(ListFeatureFlags::class)->callAction(TestAction::make('history')->table($flag))->assertHasNoActionErrors();
     $flag->update(['enabled' => false]);
-    $revision = Activity::query()->where('subject_type', $flag->getMorphClass())->where('subject_id', $flag->id)->where('event', 'updated')->latest('id')->firstOrFail();
+    $model = Activity::query()->where('subject_type', $flag->getMorphClass())->where('subject_id', $flag->id)->where('event', 'updated')->latest('id')->firstOrFail();
     Livewire::test(ListFeatureFlags::class)
-        ->callAction(TestAction::make('rollback')->table($flag), data: ['revision' => $revision->id])->assertHasNoActionErrors();
+        ->callAction(TestAction::make('rollback')->table($flag), data: ['revision' => $model->id])->assertHasNoActionErrors();
     expect($flag->fresh()->enabled)->toBeTrue();
     Livewire::test(ListFeatureFlags::class)
         ->callAction(TestAction::make('release')->table(), data: ['version' => 'v2'])->assertHasNoActionErrors();
@@ -84,5 +84,5 @@ test('manifest rejects duplicate keys unknown rules and inverted schedules', fun
         $manifest['features'][0]['starts_at'] = '2027-01-02';
         $manifest['features'][0]['ends_at'] = '2027-01-01';
     }
-    expect(fn () => FeatureManifest::import($manifest, true))->toThrow(ValidationException::class);
+    expect(fn (): int => FeatureManifest::import($manifest, true))->toThrow(ValidationException::class);
 })->with(['duplicate', 'rule', 'schedule']);

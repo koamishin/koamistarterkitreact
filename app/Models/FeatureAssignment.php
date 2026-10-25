@@ -27,6 +27,7 @@ class FeatureAssignment extends Model
 
     protected $fillable = ['feature_flag_id', 'user_id', 'kind', 'active'];
 
+    #[\Override]
     protected static function booted(): void
     {
         static::saved(function (): void {
@@ -39,6 +40,7 @@ class FeatureAssignment extends Model
         });
     }
 
+    #[\Override]
     protected function casts(): array
     {
         return ['active' => 'boolean'];

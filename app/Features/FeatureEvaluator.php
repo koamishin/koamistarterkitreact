@@ -56,7 +56,7 @@ class FeatureEvaluator
             if (($flag->starts_at && now()->lt($flag->starts_at)) || ($flag->ends_at && now()->gte($flag->ends_at))) {
                 return $decision(false, false, 'schedule');
             }
-            if ($stage === FeatureStage::Beta && (! $user || ! $user->beta_opted_in_at)) {
+            if ($stage === FeatureStage::Beta && (! $user instanceof \App\Models\User || ! $user->beta_opted_in_at)) {
                 return $decision(false, false, 'beta_opt_in_required');
             }
         }
@@ -69,7 +69,7 @@ class FeatureEvaluator
             $this->userAssignments[$user->id] ??= FeatureAssignment::query()->where('user_id', $user->id)->get()->groupBy('feature_flag_id');
             $this->roleAssignments[$user->id] ??= RoleFeature::query()->whereIn('role_id', $user->roles->modelKeys())->get()->groupBy('feature');
         }
-        $assignments = $flag && $user
+        $assignments = $flag && $user instanceof \App\Models\User
             ? ($this->userAssignments[$user->id]->get($flag->id) ?? collect())->keyBy('kind')
             : collect();
         $override = $assignments->get('override');
@@ -86,7 +86,7 @@ class FeatureEvaluator
             return $decision(true, true, 'user_override');
         }
 
-        if ($flag?->target_roles && (! $user || ! $user->hasAnyRole($flag->target_roles))) {
+        if ($flag?->target_roles && (! $user instanceof \App\Models\User || ! $user->hasAnyRole($flag->target_roles))) {
             return $decision(false, false, 'audience');
         }
         foreach ($flag->rules ?? [] as $rule) {
@@ -103,7 +103,7 @@ class FeatureEvaluator
         $reason = $roleValues->isNotEmpty() ? 'role' : 'default';
         $controllable = $flag->user_controllable ?? in_array($key, ['email-notifications', 'marketing-emails', 'activity-tracking'], true);
 
-        if ($preferences && $user && $controllable) {
+        if ($preferences && $user instanceof \App\Models\User && $controllable) {
             $preference = $assignments->get('preference');
             if ($preference) {
                 return $decision($preference->active, true, 'preference');
@@ -121,7 +121,7 @@ class FeatureEvaluator
 
     public function bucket(string $key, ?User $user): int
     {
-        return (int) (hexdec(substr(hash('sha256', $key.':'.($user?->getKey() ?? 'guest')), 0, 8)) % 10000);
+        return hexdec(substr(hash('sha256', $key.':'.($user?->getKey() ?? 'guest')), 0, 8)) % 10000;
     }
 
     private function matches(array $rule, ?User $user): bool
@@ -132,7 +132,7 @@ class FeatureEvaluator
 
         return match ($rule['attribute'] ?? '') {
             'email_domain' => in_array(strtolower((string) str($user->email)->afterLast('@')), $rule['values'] ?? [], true),
-            'user_id' => in_array((string) $user->id, array_map('strval', $rule['values'] ?? []), true),
+            'user_id' => in_array((string) $user->id, array_map(strval(...), $rule['values'] ?? []), true),
             'verified' => $user->hasVerifiedEmail() === filter_var(($rule['values'][0] ?? false), FILTER_VALIDATE_BOOL),
             default => false,
         };

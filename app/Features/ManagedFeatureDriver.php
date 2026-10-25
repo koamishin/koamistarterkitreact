@@ -10,21 +10,24 @@ use Laravel\Pennant\Drivers\DatabaseDriver;
 
 class ManagedFeatureDriver extends DatabaseDriver
 {
+    #[\Override]
     public function get(mixed $feature, mixed $scope): mixed
     {
         return app(FeatureEvaluator::class)->evaluate($feature, $scope instanceof User ? $scope : null)['active'];
     }
 
+    #[\Override]
     public function getAll(mixed $features): array
     {
         $values = [];
         foreach ($features as $feature => $scopes) {
-            $values[$feature] = array_map(fn ($scope) => $this->get($feature, $scope), $scopes);
+            $values[$feature] = array_map(fn ($scope): mixed => $this->get($feature, $scope), $scopes);
         }
 
         return $values;
     }
 
+    #[\Override]
     public function set(mixed $feature, mixed $scope, mixed $value): void
     {
         if ($scope instanceof User) {
@@ -35,11 +38,13 @@ class ManagedFeatureDriver extends DatabaseDriver
         }
     }
 
+    #[\Override]
     public function setForAllScopes(mixed $feature, mixed $value): void
     {
         FeatureManifest::ensure($feature)->update(['enabled' => (bool) $value, 'default_value' => (bool) $value]);
     }
 
+    #[\Override]
     public function delete(mixed $feature, mixed $scope): void
     {
         if ($scope instanceof User) {
@@ -48,6 +53,7 @@ class ManagedFeatureDriver extends DatabaseDriver
         }
     }
 
+    #[\Override]
     public function setAll(array $features): void
     {
         foreach ($features as $feature) {
@@ -55,11 +61,12 @@ class ManagedFeatureDriver extends DatabaseDriver
         }
     }
 
+    #[\Override]
     public function purge(mixed $features): void
     {
-        $query = FeatureAssignment::query()->where('kind', 'override');
+        $builder = FeatureAssignment::query()->where('kind', 'override');
         if ($features !== null) {
-            $query->whereHas('featureFlag', fn ($query) => $query->whereIn('key', $features));
+            $builder->whereHas('featureFlag', fn ($query) => $query->whereIn('key', $features));
         }
         $query->get()->each->delete();
         parent::purge($features);

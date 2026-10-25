@@ -60,9 +60,9 @@ class AiSettings extends Settings
      */
     public function isConfigured(): bool
     {
-        $provider = $this->resolvedProvider();
+        $aiProvider = $this->resolvedProvider();
 
-        if (! $provider->requiresApiKey()) {
+        if (! $aiProvider->requiresApiKey()) {
             return true;
         }
 
@@ -132,8 +132,8 @@ class AiSettings extends Settings
             'arguments' => $isWeb
                 ? []
                 : array_values(array_filter(
-                    array_map('strval', (array) ($server['arguments'] ?? [])),
-                    fn (string $argument): bool => filled($argument),
+                    array_map(strval(...), (array) ($server['arguments'] ?? [])),
+                    filled(...),
                 )),
         ];
     }

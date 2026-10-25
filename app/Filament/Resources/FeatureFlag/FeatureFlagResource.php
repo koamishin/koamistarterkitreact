@@ -48,13 +48,14 @@ class FeatureFlagResource extends Resource
 
     protected static ?int $navigationSort = 10;
 
+    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             Section::make('Definition')->description('Ship code once. Control who receives it independently.')
                 ->schema([
                     TextInput::make('key')->required()->maxLength(100)->regex('/^[a-z][a-z0-9_.-]*$/')->unique(ignoreRecord: true)
-                        ->disabled(fn (?FeatureFlag $record): bool => $record !== null)->dehydrated()
+                        ->disabled(fn (?FeatureFlag $featureFlag): bool => $featureFlag instanceof \App\Models\FeatureFlag)->dehydrated()
                         ->helperText('Permanent key used by backend checks and frontend flags.'),
                     TextInput::make('name')->required()->maxLength(255),
                     Textarea::make('description')->maxLength(5000)->columnSpanFull(),
@@ -87,11 +88,12 @@ class FeatureFlagResource extends Resource
         ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table->defaultSort('updated_at', 'desc')->columns([
-            TextColumn::make('name')->searchable()->sortable()->description(fn (FeatureFlag $record): string => $record->key),
-            TextColumn::make('stage')->badge()->color(fn (FeatureStage $state): string => match ($state) {
+            TextColumn::make('name')->searchable()->sortable()->description(fn (FeatureFlag $featureFlag): string => $featureFlag->key),
+            TextColumn::make('stage')->badge()->color(fn (FeatureStage $featureStage): string => match ($featureStage) {
                 FeatureStage::Stable => 'success', FeatureStage::Beta => 'warning', default => 'gray',
             }),
             IconColumn::make('enabled')->boolean()->label('Live'),
@@ -104,89 +106,87 @@ class FeatureFlagResource extends Resource
         ])->filters([
             SelectFilter::make('stage')->options(FeatureStage::options()),
         ])->recordActions([
-            EditAction::make()->mutateDataUsing(function (array $data, FeatureFlag $record): array {
-                Gate::authorize('update', $record);
-                $data['key'] = $record->key;
+            EditAction::make()->mutateDataUsing(function (array $data, FeatureFlag $featureFlag): array {
+                Gate::authorize('update', $featureFlag);
+                $data['key'] = $featureFlag->key;
 
                 return Validator::make($data, FeatureManifest::rules())->validate();
             }),
             ActionGroup::make([
                 Action::make('promote')->label('Promote to stable')->icon('heroicon-o-rocket-launch')
-                    ->visible(fn (FeatureFlag $record): bool => $record->stage === FeatureStage::Beta)
+                    ->visible(fn (FeatureFlag $featureFlag): bool => $featureFlag->stage === FeatureStage::Beta)
                     ->authorize('update')->requiresConfirmation()
                     ->modalDescription('Removes the beta opt-in requirement. Kill switch, audience, schedule, and rollout remain unchanged.')
-                    ->action(function (FeatureFlag $record): void {
-                        Gate::authorize('update', $record);
-                        $record->update(['stage' => FeatureStage::Stable]);
+                    ->action(function (FeatureFlag $featureFlag): void {
+                        Gate::authorize('update', $featureFlag);
+                        $featureFlag->update(['stage' => FeatureStage::Stable]);
                     }),
                 Action::make('kill')->label('Pause / resume')->icon('heroicon-o-pause')->authorize('update')->requiresConfirmation()
-                    ->action(function (FeatureFlag $record): void {
-                        Gate::authorize('update', $record);
-                        $record->update(['enabled' => ! $record->enabled]);
+                    ->action(function (FeatureFlag $featureFlag): void {
+                        Gate::authorize('update', $featureFlag);
+                        $featureFlag->update(['enabled' => ! $featureFlag->enabled]);
                     }),
                 Action::make('override')->label('User override')->authorize('update')->schema([
                     self::userSelect(),
                     Select::make('decision')->options(['on' => 'Force on (within safety gates)', 'off' => 'Force off', 'inherit' => 'Remove override'])->required(),
-                ])->action(function (FeatureFlag $record, array $data): void {
-                    Gate::authorize('update', $record);
+                ])->action(function (FeatureFlag $featureFlag, array $data): void {
+                    Gate::authorize('update', $featureFlag);
                     $user = User::query()->findOrFail($data['user_id']);
-                    $query = $record->assignments()->where('user_id', $user->id)->where('kind', 'override');
+                    $builder = $featureFlag->assignments()->where('user_id', $user->id)->where('kind', 'override');
                     if ($data['decision'] === 'inherit') {
-                        $query->get()->each->delete();
+                        $builder->get()->each->delete();
                     } else {
-                        $record->assignments()->updateOrCreate(['user_id' => $user->id, 'kind' => 'override'], ['active' => $data['decision'] === 'on']);
+                        $featureFlag->assignments()->updateOrCreate(['user_id' => $user->id, 'kind' => 'override'], ['active' => $data['decision'] === 'on']);
                     }
                 }),
                 Action::make('role')->label('Role override')->authorize('update')->schema([
                     Select::make('role_id')->options(fn (): array => Role::query()->pluck('name', 'id')->all())->required(),
                     Select::make('decision')->options(['on' => 'Enable', 'off' => 'Deny', 'inherit' => 'Inherit rollout'])->required(),
-                ])->action(function (FeatureFlag $record, array $data): void {
-                    Gate::authorize('update', $record);
+                ])->action(function (FeatureFlag $featureFlag, array $data): void {
+                    Gate::authorize('update', $featureFlag);
                     $role = Role::query()->findOrFail($data['role_id']);
                     if ($data['decision'] === 'inherit') {
-                        RoleFeature::query()->where('role_id', $role->id)->where('feature', $record->key)->get()->each->delete();
+                        RoleFeature::query()->where('role_id', $role->id)->where('feature', $featureFlag->key)->get()->each->delete();
                     } else {
-                        FeatureRegistry::toggleForRole($role, $record->key, $data['decision'] === 'on');
+                        FeatureRegistry::toggleForRole($role, $featureFlag->key, $data['decision'] === 'on');
                     }
                     Feature::flushCache();
                 }),
                 Action::make('preview')->label('Explain access')->authorize('view')->schema([self::userSelect()])
-                    ->action(function (FeatureFlag $record, array $data): void {
-                        Gate::authorize('view', $record);
-                        $result = app(FeatureEvaluator::class)->evaluate($record->key, User::query()->findOrFail($data['user_id']));
+                    ->action(function (FeatureFlag $featureFlag, array $data): void {
+                        Gate::authorize('view', $featureFlag);
+                        $result = app(FeatureEvaluator::class)->evaluate($featureFlag->key, User::query()->findOrFail($data['user_id']));
                         Notification::make()->title($result['active'] ? 'Feature active' : 'Feature inactive')
                             ->body('Decision: '.$result['reason'].' · Stage: '.$result['stage'])->info()->send();
                     }),
                 Action::make('history')->label('Audit history')->authorize('view')->modalSubmitAction(false)
-                    ->modalContent(function (FeatureFlag $record) {
-                        Gate::authorize('view', $record);
+                    ->modalContent(function (FeatureFlag $featureFlag): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
+                        Gate::authorize('view', $featureFlag);
 
                         return view('filament.features.history', [
-                            'changes' => Activity::query()->where('log_name', 'feature-flags')->where(function ($query) use ($record): void {
-                                $query->where(fn ($query) => $query->where('subject_type', $record->getMorphClass())->where('subject_id', $record->id))
-                                    ->orWhere('properties->feature_key', $record->key);
+                            'changes' => Activity::query()->where('log_name', 'feature-flags')->where(function ($query) use ($featureFlag): void {
+                                $query->where(fn ($query) => $query->where('subject_type', $featureFlag->getMorphClass())->where('subject_id', $featureFlag->id))
+                                    ->orWhere('properties->feature_key', $featureFlag->key);
                             })->with('causer')->latest()->limit(50)->get(),
                         ]);
                     }),
                 Action::make('rollback')->label('Restore previous configuration')->authorize('update')->requiresConfirmation()
                     ->schema([
-                        Select::make('revision')->label('Recorded revision')->required()->options(function (FeatureFlag $record): array {
-                            return Activity::query()->where('subject_type', $record->getMorphClass())->where('subject_id', $record->id)
-                                ->where('event', 'updated')->latest()->limit(50)->get()
-                                ->mapWithKeys(fn (Activity $activity): array => [$activity->id => $activity->created_at->toDateTimeString().' · Before change #'.$activity->id])->all();
-                        }),
-                    ])->action(function (FeatureFlag $record, array $data): void {
-                        Gate::authorize('update', $record);
-                        $revision = Activity::query()->where('subject_type', $record->getMorphClass())->where('subject_id', $record->id)
+                        Select::make('revision')->label('Recorded revision')->required()->options(fn(FeatureFlag $record): array => Activity::query()->where('subject_type', $record->getMorphClass())->where('subject_id', $record->id)
+                            ->where('event', 'updated')->latest()->limit(50)->get()
+                            ->mapWithKeys(fn (Activity $activity): array => [$activity->id => $activity->created_at->toDateTimeString().' · Before change #'.$activity->id])->all()),
+                    ])->action(function (FeatureFlag $featureFlag, array $data): void {
+                        Gate::authorize('update', $featureFlag);
+                        $revision = Activity::query()->where('subject_type', $featureFlag->getMorphClass())->where('subject_id', $featureFlag->id)
                             ->where('event', 'updated')->findOrFail($data['revision']);
-                        $previous = array_intersect_key($revision->properties->get('old', []), array_flip($record->getFillable()));
+                        $previous = array_intersect_key($revision->properties->get('old', []), array_flip($featureFlag->getFillable()));
                         unset($previous['key']);
-                        $record->fill($previous)->save();
+                        $featureFlag->fill($previous)->save();
                         Notification::make()->success()->title('Previous configuration restored')->send();
                     }),
-                Action::make('archive')->authorize('update')->requiresConfirmation()->action(function (FeatureFlag $record): void {
-                    Gate::authorize('update', $record);
-                    $record->update(['stage' => FeatureStage::Archived, 'enabled' => false]);
+                Action::make('archive')->authorize('update')->requiresConfirmation()->action(function (FeatureFlag $featureFlag): void {
+                    Gate::authorize('update', $featureFlag);
+                    $featureFlag->update(['stage' => FeatureStage::Archived, 'enabled' => false]);
                 }),
             ])->label('Manage')->icon('heroicon-o-ellipsis-horizontal')->button(),
         ])->headerActions([
@@ -204,7 +204,7 @@ class FeatureFlagResource extends Resource
                 ->action(function () {
                     Gate::authorize('viewAny', FeatureFlag::class);
 
-                    return response()->streamDownload(fn () => print (json_encode(FeatureManifest::export(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)), 'features.json');
+                    return response()->streamDownload(fn (): int => print (json_encode(FeatureManifest::export(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)), 'features.json');
                 }),
             Action::make('import')->label('Import manifest')->authorize(fn (): bool => Auth::user()?->can('create', FeatureFlag::class) ?? false)
                 ->schema([Textarea::make('manifest')->required()->rows(12), Toggle::make('overwrite')->default(false)])
@@ -234,6 +234,7 @@ class FeatureFlagResource extends Resource
             ->getOptionLabelUsing(fn ($value): ?string => User::query()->find($value)?->email);
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return ['index' => ListFeatureFlags::route('/')];
