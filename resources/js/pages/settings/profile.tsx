@@ -4,6 +4,7 @@ import { Link } from '@inertiajs/react';
 /* @end-chisel-email-verification */
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
+import BetaAccess from '@/components/beta-access';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import { send } from '@/routes/verification';
 
 type PageProps = {
     auth: Auth;
+    betaOptedIn: boolean;
 };
 
 export default function Profile(
@@ -30,7 +32,7 @@ export default function Profile(
     },
     /* @end-chisel-email-verification */
 ) {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, betaOptedIn } = usePage<PageProps>().props;
 
     return (
         <>
@@ -133,6 +135,7 @@ export default function Profile(
                 </Form>
             </div>
 
+            <BetaAccess enabled={betaOptedIn} />
             <DeleteUser />
         </>
     );

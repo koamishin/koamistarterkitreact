@@ -12,10 +12,10 @@
 
   <p align="center">
     <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-13-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel 13" /></a>
-    <a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue.js-3-4FC08D?style=for-the-badge&logo=vue.js" alt="Vue 3" /></a>
-    <a href="https://inertiajs.com"><img src="https://img.shields.io/badge/Inertia-v2-9553E9?style=for-the-badge&logo=inertia" alt="Inertia v2" /></a>
+    <a href="https://react.dev"><img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react" alt="React 19" /></a>
+    <a href="https://inertiajs.com"><img src="https://img.shields.io/badge/Inertia-v3-9553E9?style=for-the-badge&logo=inertia" alt="Inertia v3" /></a>
     <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind 4" /></a>
-    <a href="https://ui.shadcn.com"><img src="https://img.shields.io/badge/Shadcn-Vue-000000?style=for-the-badge&logo=shadcnui" alt="Shadcn Vue" /></a>
+    <a href="https://ui.shadcn.com"><img src="https://img.shields.io/badge/Shadcn-UI-000000?style=for-the-badge&logo=shadcnui" alt="Shadcn UI" /></a>
   </p>
 </div>
 
@@ -55,6 +55,8 @@ Use it as-is, fork it, or cherry-pick the parts you like—whatever gets you cod
 **Battery-included, but not bloated.** Everything you need to ship.
 
 - **🔐 Complete Authentication**: Powered by **Fortify**. Login, Registration, 2FA, Email Verification, Passkeys, and Profile Management ready to go.
+- **⚡ Developer Quick Login**: One-click developer authentication on the login page in `local` environment (`APP_ENV=local`). Instantly sign in as seeded accounts (Super Admin, User) without typing credentials. Strictly disabled (returns 404) in non-local environments.
+- **🤖 Laravel AI SDK & MCP**: Integrated **laravel/ai** and **laravel/mcp** with dynamic configuration via Filament Settings. Supports 10+ providers (OpenAI, Anthropic, Gemini, Groq, Ollama, xAI, DeepSeek, Mistral, OpenRouter, and custom endpoints) and connects external Model Context Protocol (MCP) servers.
 - **🔑 Social Login**: Login with **GitHub**, **Google**, or **Facebook** via Laravel Socialite. Configure credentials through the admin panel (stored in DB or `.env`).
 - **📦 Modular Architecture**: Built on **nwidart/laravel-modules** — extend with self-contained modules that register their own routes, Filament resources, and Inertia pages.
 - **👥 Roles & Permissions**: Built-in **Spatie Permissions**. Manage **Admins** (Filament access) and **Users** (Inertia access) out of the box.
@@ -64,9 +66,9 @@ Use it as-is, fork it, or cherry-pick the parts you like—whatever gets you cod
 - **🕵️‍♂️ User Impersonation**: Admins can easily impersonate users to troubleshoot issues, with a visible banner and quick "Leave" action.
 - **🔔 Database Notifications**: Built-in notification system with a bell icon in the sidebar header. Shows unread count, dropdown list, and mark as read functionality.
 - **🎛️ Admin Panel**: Pre-configured **Filament** admin dashboard with User Management.
-- **🎨 40+ UI Components**: Beautiful, accessible components from **Shadcn Vue**, plus dark mode and multiple themes (Default, Rose, Ocean, Sage Garden, Claude).
+- **🎨 40+ UI Components**: Beautiful, accessible components from **Shadcn UI (React)**, plus dark mode and multiple themes (Default, Rose, Ocean, Sage Garden, Claude).
 - **🛠️ Type-Safe Routing**: **Wayfinder** ensures your frontend knows your backend routes. No more broken links.
-- **⚡ High Performance**: **Laravel Octane** + **Inertia.js v2** + **Vite** for instant page loads.
+- **⚡ High Performance**: **Laravel Octane** + **Inertia.js v3** + **Vite** for instant page loads.
 - **🚢 Production Ready**: **Docker** support, **GitHub Actions** CI/CD, and strict code quality tools (Pint, PHPStan, Rector) pre-configured.
 
 ---
@@ -347,6 +349,37 @@ The passkey sign-in button appears automatically on the login page when the feat
 
 ---
 
+### ⚡ Developer Quick Login (Local Environment)
+
+In local development (`APP_ENV=local`), the login screen automatically renders a **Quick Developer Login** panel. Developers can click any seeded account to authenticate instantly with one click without entering passwords or passing MFA challenges:
+
+- **Admin User** (`admin@admin.com`) — `Super Admin` role with full Filament admin panel access
+- **Regular User** (`user@user.com`) — `User` role for Inertia frontend testing
+- Default password for manual login: `password`
+
+> **Security**: The developer login route (`/developer-login`) and login panel are strictly gated by `app()->environment('local')`. In testing, staging, and production environments, the endpoint unconditionally returns `404 Not Found`, and no developer accounts are exposed to the frontend.
+
+---
+
+### 🤖 Laravel AI SDK & Model Context Protocol (MCP)
+
+This starter kit includes first-party integration with **laravel/ai** and **laravel/mcp**, completely configurable at runtime through the Filament admin panel under **Settings > AI & MCP**.
+
+#### Features
+
+- **Dynamic Provider Selection**: Switch between 10+ providers (OpenAI, Anthropic, Google Gemini, Groq, xAI, DeepSeek, Mistral, OpenRouter, Ollama, and OpenAI-compatible endpoints) without touching `.env`.
+- **Precedence**: Environment variables (e.g. `OPENAI_API_KEY`) automatically take precedence over database-stored values when present.
+- **Model Context Protocol (MCP) Tools**: Connect external MCP servers (remote HTTP or local CLI commands) to dynamically feed tools to AI agents.
+- **Built-in Assistant**: Pre-configured `ApplicationAgent` exposing application information and connected MCP tools.
+- **Test Connection Action**: Verify credentials and provider responses directly from the Filament settings interface.
+- **CLI Prompting**: Test and query the assistant via Artisan:
+
+```bash
+php artisan ai:ask "What is this application about?"
+```
+
+---
+
 ### Accessing Settings in Code
 
 ```php
@@ -364,6 +397,87 @@ if ($settings->registration_enabled) {
 $settings->auth_layout = 'card';
 $settings->save();
 ```
+
+---
+
+## Feature management and beta releases
+
+Feature Management in Filament replaces the old role-toggle screen. Super admins can create and edit permanent feature keys, assign owners and tags, target audiences, stage rollouts, explain individual access, inspect audit history, and restore fields from a previous change.
+
+Regression coverage includes backend/Filament workflows and Chromium browser tests for profile enrollment, revocation, mobile layout, and the admin definition editor. After installing development dependencies, run `npx playwright install chromium`, `npm run build`, and `php artisan test --compact`. Browser tests intentionally load built assets instead of the running Vite dev server.
+
+### Lifecycle and distribution
+
+- **Draft**: never delivered, even with a user override.
+- **Beta**: delivered only to users who explicitly enrolled in early access from **Settings > Profile**. Users can leave anytime.
+- **Stable**: no beta enrollment required; other rollout restrictions still apply.
+- **Archived**: inactive, retained for history and cleanup.
+
+Delivery controls include an immediate kill switch, environment restrictions, start/end windows, role audiences, exact email-domain/user-ID/verified-email rules, and deterministic percentage rollouts. All targeting rules must match. Raising a percentage retains the existing cohort for the same feature key and user ID. Guests use one shared anonymous cohort, not per-browser identities.
+
+The kill switch, draft/archive status, environment, schedule, beta consent, and explicit role denies take precedence over user overrides. A force-on user override bypasses targeting and percentage rollout, but cannot bypass those safety gates. Conflicting role overrides use **deny wins**.
+
+**User preferences are separate from administrator overrides.** Only flags marked **Allow user preferences** appear in account feature settings. Users cannot grant themselves protected features or bypass targeting. Existing built-in feature defaults and role settings remain supported; legacy Pennant values are read only for user-controllable preferences. The old `beta-features` key now reflects explicit beta enrollment, rather than granting beta access itself.
+
+### Setup and release workflow
+
+```bash
+php artisan migrate --no-interaction
+php artisan features:manifest sync
+```
+
+The default Pennant store is now `managed`. If your environment explicitly sets `PENNANT_STORE=database` or `array`, change it to `PENNANT_STORE=managed` to use rollout evaluation through Pennant. Restart long-running workers after deployment. Definitions and assignments are loaded per request, with no user-specific static cache.
+
+1. Ship code guarded by a permanent feature key.
+2. Create its definition in Filament; choose Beta, enable delivery, set the default value, and select an audience/percentage.
+3. Assign an exact release version, such as `2.0.0`.
+4. Promote that release from Filament or deployment automation:
+
+```bash
+php artisan features:release 2.0.0
+```
+
+Promotion changes matching **Beta** definitions to **Stable**. It deliberately preserves kill switches, default values, schedules, audiences, and rollout percentages. Set rollout to 100%, default value to on, and clear audience restrictions separately when ready for general availability. Promotion is explicit; a deployment alone does not silently release features.
+
+### Guard application code
+
+```php
+use App\Features\FeatureRegistry;
+use Laravel\Pennant\Feature;
+
+$enabled = FeatureRegistry::isEnabledForUser($user, 'new-search');
+$enabled = Feature::for($user)->active('new-search');
+
+Route::get('/new-search', SearchController::class)
+    ->middleware(['auth', 'feature:new-search']);
+```
+
+The `feature` middleware returns 404 when access is unavailable. Feature access is not a replacement for model authorization or permission checks.
+
+```tsx
+import { useFeature } from '@/hooks/use-feature';
+
+const showNewSearch = useFeature('new-search');
+```
+
+Inertia shares only evaluated boolean flags, not audience rules or per-user assignments. Hiding frontend controls is not security: protect the matching backend operation too.
+
+### Portable feature manifests
+
+```bash
+php artisan features:manifest export features.json
+php artisan features:manifest import features.json
+# Explicitly replace definitions that already exist:
+php artisan features:manifest import features.json --overwrite
+```
+
+Filament also supports JSON import/export. Manifests use `schema_version: 1`, are validated before a transactional import, and skip existing definitions unless overwrite is selected. Code-definition sync is idempotent and never resets administrator rollout settings. Database seeding also syncs built-in definitions.
+
+Manifests contain definition configuration, including any targeting user IDs or email domains you configured. They exclude per-user overrides, preferences, and beta enrollment. Review targeting data before distributing a manifest, especially between unrelated databases. Import never deletes definitions absent from the manifest.
+
+Configuration changes, overrides, role settings, and beta consent changes use the existing activity log. The feature-specific history shows configuration and override changes; beta enrollment changes remain in the user activity log. Audit history is bounded to the latest 50 matching entries per view.
+
+This is a self-hosted boolean release-management system. It does not provide multivariate experiments, statistical A/B analysis, or remote client SDK streaming.
 
 ---
 
