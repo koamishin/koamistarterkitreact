@@ -3,9 +3,10 @@ import { Info } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import BetaAccess from '@/components/beta-access';
+import { update } from '@/actions/App/Http/Controllers/Settings/FeatureFlagsController';
 
 type FeatureFlag = {
     key: string;
@@ -13,11 +14,18 @@ type FeatureFlag = {
     description: string;
     value: boolean;
     available: boolean;
+    stage: string;
+    reason: string;
 };
 
-export default function Features({ features }: { features: FeatureFlag[] }) {
+export default function Features({
+    features,
+    betaOptedIn,
+}: {
+    features: FeatureFlag[];
+    betaOptedIn: boolean;
+}) {
     const [pending, setPending] = useState<string | null>(null);
-    const featuresSettingsUrl = '/settings/features';
 
     const toggleFeature = (key: string, active: boolean) => {
         const feature = features.find((f) => f.key === key);
@@ -29,7 +37,7 @@ export default function Features({ features }: { features: FeatureFlag[] }) {
 
         setPending(key);
         router.patch(
-            featuresSettingsUrl,
+            update.url(),
             { feature: key, active },
             {
                 preserveScroll: true,
@@ -62,9 +70,11 @@ export default function Features({ features }: { features: FeatureFlag[] }) {
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title="Feature Flags"
-                    description="Manage your feature preferences and experimental features"
+                    title="Your feature preferences"
+                    description="Choose your experience within the features released to your account."
                 />
+
+                <BetaAccess enabled={betaOptedIn} />
 
                 {availableFeatures.length > 0 && (
                     <div className="grid gap-4 md:grid-cols-2">
@@ -81,7 +91,10 @@ export default function Features({ features }: { features: FeatureFlag[] }) {
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="space-y-1">
                                         <p className="leading-none font-medium">
-                                            {feature.name}
+                                            {feature.name}{' '}
+                                            <span className="font-mono text-xs uppercase text-muted-foreground">
+                                                {feature.stage}
+                                            </span>
                                         </p>
                                         <p className="text-sm text-muted-foreground">
                                             {feature.description}
@@ -110,6 +123,7 @@ export default function Features({ features }: { features: FeatureFlag[] }) {
                                         </div>
                                     </div>
                                     <Switch
+                                        aria-label={`Enable ${feature.name}`}
                                         checked={feature.value}
                                         disabled={pending === feature.key}
                                         onCheckedChange={(active: boolean) =>
@@ -145,7 +159,10 @@ export default function Features({ features }: { features: FeatureFlag[] }) {
                                             <div className="flex items-center gap-2 pt-2">
                                                 <span className="flex h-2 w-2 rounded-full bg-muted-foreground/30" />
                                                 <span className="text-xs font-medium text-muted-foreground">
-                                                    Unavailable for your role
+                                                    {feature.reason.replaceAll(
+                                                        '_',
+                                                        ' ',
+                                                    )}
                                                 </span>
                                             </div>
                                         </div>
@@ -169,18 +186,12 @@ export default function Features({ features }: { features: FeatureFlag[] }) {
                                 Feature flags allow you to control which
                                 features are enabled for your account. Toggle
                                 features on or off to customize your experience.
-                                Some features may require a page refresh to take
-                                effect. Features marked as unavailable are
-                                controlled by your role permissions.
+                                Availability depends on release stage, beta
+                                enrollment, targeting, and rollout. Preferences
+                                cannot override administrator restrictions.
                             </p>
                         </div>
                     </div>
-                </div>
-
-                <div className="hidden">
-                    <Button type="button" disabled>
-                        Refresh
-                    </Button>
                 </div>
             </div>
         </>

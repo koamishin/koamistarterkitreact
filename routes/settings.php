@@ -1,6 +1,7 @@
 <?php
 
 use App\Features\FeatureRegistry;
+use App\Http\Controllers\Settings\BetaAccessController;
 use App\Http\Controllers\Settings\FeatureFlagsController;
 use App\Http\Controllers\Settings\FilamentAppAuthenticationController;
 use App\Http\Controllers\Settings\FilamentEmailAuthenticationController;
@@ -19,6 +20,7 @@ Route::middleware(['auth'])->group(function (): void {
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('settings/beta-access', [BetaAccessController::class, 'update'])->name('profile.beta.update');
     Route::post('settings/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
     Route::delete('settings/profile/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
 

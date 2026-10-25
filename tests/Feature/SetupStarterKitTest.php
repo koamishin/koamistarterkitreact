@@ -9,6 +9,7 @@ use Illuminate\Console\View\Components\Factory;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Laravel\Chisel\Chisel;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\Process;
@@ -872,6 +873,8 @@ test('chisel paths and section markers are valid and 2fa section can be removed 
 
         $file = new Laravel\Chisel\Filesystem\File($tmpDir);
         $file->removeSection('User.php', '2fa');
+
+        Chisel::in($tmpDir)->file('User.php')->removeLinesContaining('use Laravel\Fortify\TwoFactorAuthenticatable;');
 
         $content = File::get($tmpDir.'/User.php');
 

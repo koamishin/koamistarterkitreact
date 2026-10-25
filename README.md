@@ -400,6 +400,87 @@ $settings->save();
 
 ---
 
+## Feature management and beta releases
+
+Feature Management in Filament replaces the old role-toggle screen. Super admins can create and edit permanent feature keys, assign owners and tags, target audiences, stage rollouts, explain individual access, inspect audit history, and restore fields from a previous change.
+
+Regression coverage includes backend/Filament workflows and Chromium browser tests for profile enrollment, revocation, mobile layout, and the admin definition editor. After installing development dependencies, run `npx playwright install chromium`, `npm run build`, and `php artisan test --compact`. Browser tests intentionally load built assets instead of the running Vite dev server.
+
+### Lifecycle and distribution
+
+- **Draft**: never delivered, even with a user override.
+- **Beta**: delivered only to users who explicitly enrolled in early access from **Settings > Profile**. Users can leave anytime.
+- **Stable**: no beta enrollment required; other rollout restrictions still apply.
+- **Archived**: inactive, retained for history and cleanup.
+
+Delivery controls include an immediate kill switch, environment restrictions, start/end windows, role audiences, exact email-domain/user-ID/verified-email rules, and deterministic percentage rollouts. All targeting rules must match. Raising a percentage retains the existing cohort for the same feature key and user ID. Guests use one shared anonymous cohort, not per-browser identities.
+
+The kill switch, draft/archive status, environment, schedule, beta consent, and explicit role denies take precedence over user overrides. A force-on user override bypasses targeting and percentage rollout, but cannot bypass those safety gates. Conflicting role overrides use **deny wins**.
+
+**User preferences are separate from administrator overrides.** Only flags marked **Allow user preferences** appear in account feature settings. Users cannot grant themselves protected features or bypass targeting. Existing built-in feature defaults and role settings remain supported; legacy Pennant values are read only for user-controllable preferences. The old `beta-features` key now reflects explicit beta enrollment, rather than granting beta access itself.
+
+### Setup and release workflow
+
+```bash
+php artisan migrate --no-interaction
+php artisan features:manifest sync
+```
+
+The default Pennant store is now `managed`. If your environment explicitly sets `PENNANT_STORE=database` or `array`, change it to `PENNANT_STORE=managed` to use rollout evaluation through Pennant. Restart long-running workers after deployment. Definitions and assignments are loaded per request, with no user-specific static cache.
+
+1. Ship code guarded by a permanent feature key.
+2. Create its definition in Filament; choose Beta, enable delivery, set the default value, and select an audience/percentage.
+3. Assign an exact release version, such as `2.0.0`.
+4. Promote that release from Filament or deployment automation:
+
+```bash
+php artisan features:release 2.0.0
+```
+
+Promotion changes matching **Beta** definitions to **Stable**. It deliberately preserves kill switches, default values, schedules, audiences, and rollout percentages. Set rollout to 100%, default value to on, and clear audience restrictions separately when ready for general availability. Promotion is explicit; a deployment alone does not silently release features.
+
+### Guard application code
+
+```php
+use App\Features\FeatureRegistry;
+use Laravel\Pennant\Feature;
+
+$enabled = FeatureRegistry::isEnabledForUser($user, 'new-search');
+$enabled = Feature::for($user)->active('new-search');
+
+Route::get('/new-search', SearchController::class)
+    ->middleware(['auth', 'feature:new-search']);
+```
+
+The `feature` middleware returns 404 when access is unavailable. Feature access is not a replacement for model authorization or permission checks.
+
+```tsx
+import { useFeature } from '@/hooks/use-feature';
+
+const showNewSearch = useFeature('new-search');
+```
+
+Inertia shares only evaluated boolean flags, not audience rules or per-user assignments. Hiding frontend controls is not security: protect the matching backend operation too.
+
+### Portable feature manifests
+
+```bash
+php artisan features:manifest export features.json
+php artisan features:manifest import features.json
+# Explicitly replace definitions that already exist:
+php artisan features:manifest import features.json --overwrite
+```
+
+Filament also supports JSON import/export. Manifests use `schema_version: 1`, are validated before a transactional import, and skip existing definitions unless overwrite is selected. Code-definition sync is idempotent and never resets administrator rollout settings. Database seeding also syncs built-in definitions.
+
+Manifests contain definition configuration, including any targeting user IDs or email domains you configured. They exclude per-user overrides, preferences, and beta enrollment. Review targeting data before distributing a manifest, especially between unrelated databases. Import never deletes definitions absent from the manifest.
+
+Configuration changes, overrides, role settings, and beta consent changes use the existing activity log. The feature-specific history shows configuration and override changes; beta enrollment changes remain in the user activity log. Audit history is bounded to the latest 50 matching entries per view.
+
+This is a self-hosted boolean release-management system. It does not provide multivariate experiments, statistical A/B analysis, or remote client SDK streaming.
+
+---
+
 ## 📦 Modular Architecture (nwidart/laravel-modules)
 
 This starter kit supports a modular architecture via **nwidart/laravel-modules**. Modules live in the `Modules/` directory and are self-contained units with their own models, controllers, routes, Filament resources, frontend pages, and tests.

@@ -2,6 +2,7 @@
 
 Before planning or editing, find the row whose globs match the file's path and read that rule file.
 
-| Applies to | Rule file            |
-| ---------- | -------------------- |
+| Applies to | Rule file |
+| --- | --- |
+| app/Features/** | .ai/rules/features.md |
 | scripts/** | .ai/rules/scripts.md |

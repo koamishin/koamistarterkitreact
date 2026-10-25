@@ -172,6 +172,8 @@ return Chisel::script(__DIR__)
                 $paths['auth_types'],
             )->removeSection('2fa');
 
+            $c->file('app/Models/User.php')->removeLinesContaining('use Laravel\Fortify\TwoFactorAuthenticatable;');
+
             if ($paths['two_factor_otp_package'] !== null) {
                 chiselRemoveNpmPackages($c, $paths['two_factor_otp_package']);
             }
