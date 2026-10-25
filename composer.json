@@ -93,6 +93,7 @@
       "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
       "@php artisan key:generate",
       "@php artisan module:enable Blog --no-interaction",
+      "@php artisan install:features --ansi",
       "@php artisan migrate --force",
       "@php artisan module:migrate --force --no-interaction",
       "@php artisan db:seed --force",
@@ -144,7 +145,6 @@
       "@php artisan filament:upgrade"
     ],
     "post-update-cmd": [
-      "@php artisan install:features --ansi",
       "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
     ],
     "post-root-package-install": [

@@ -782,6 +782,34 @@ test('composer install scripts seed roles after migrating', function (): void {
     }
 });
 
+test('install:features runs during setup instead of on composer update', function (): void {
+    $composer = json_decode((string) File::get(base_path('composer.json')), true);
+
+    $setup = $composer['scripts']['setup'] ?? [];
+    $postUpdate = $composer['scripts']['post-update-cmd'] ?? [];
+
+    $featuresIndex = null;
+    $migrateIndex = null;
+
+    foreach ($setup as $index => $command) {
+        if (str_contains((string) $command, 'artisan install:features')) {
+            $featuresIndex = $index;
+        }
+
+        if (str_contains((string) $command, 'artisan migrate')) {
+            $migrateIndex = $index;
+        }
+    }
+
+    expect($featuresIndex)->not->toBeNull()
+        ->and($migrateIndex)->not->toBeNull()
+        ->and($featuresIndex)->toBeLessThan($migrateIndex);
+
+    foreach ($postUpdate as $command) {
+        expect((string) $command)->not->toContain('install:features');
+    }
+});
+
 test('local install seeds the database after migrating', function (): void {
     $command = new class extends SetupStarterKit
     {
