@@ -60,8 +60,8 @@ class HandleInertiaRequests extends Middleware
 
         $featureKeys = array_unique([...FeatureRegistry::keys(), ...FeatureFlag::query()->pluck('key')->all()]);
         $featureFlags = [];
-        foreach ($featureKeys as $key) {
-            $featureFlags[$key] = app(FeatureEvaluator::class)->evaluate($key, $user)['active'];
+        foreach ($featureKeys as $featureKey) {
+            $featureFlags[$featureKey] = app(FeatureEvaluator::class)->evaluate($featureKey, $user)['active'];
         }
 
         return [

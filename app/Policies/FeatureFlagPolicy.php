@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\FeatureFlag;
@@ -12,7 +14,7 @@ class FeatureFlagPolicy
         return $user->hasRole('super_admin');
     }
 
-    public function view(User $user, FeatureFlag $flag): bool
+    public function view(User $user, FeatureFlag $featureFlag): bool
     {
         return $this->viewAny($user);
     }
@@ -22,12 +24,12 @@ class FeatureFlagPolicy
         return $this->viewAny($user);
     }
 
-    public function update(User $user, FeatureFlag $flag): bool
+    public function update(User $user, FeatureFlag $featureFlag): bool
     {
         return $this->viewAny($user);
     }
 
-    public function delete(User $user, FeatureFlag $flag): bool
+    public function delete(User $user, FeatureFlag $featureFlag): bool
     {
         return false;
     }

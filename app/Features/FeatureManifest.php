@@ -68,7 +68,7 @@ class FeatureManifest
     {
         return [
             'schema_version' => 1,
-            'features' => FeatureFlag::query()->orderBy('key')->get()->map(fn (FeatureFlag $flag): array => collect($flag->toArray())->only((new FeatureFlag)->getFillable())->all()
+            'features' => FeatureFlag::query()->orderBy('key')->get()->map(fn (FeatureFlag $featureFlag): array => collect($featureFlag->toArray())->only((new FeatureFlag)->getFillable())->all()
             )->all(),
         ];
     }

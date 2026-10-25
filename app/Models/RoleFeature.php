@@ -18,6 +18,7 @@ class RoleFeature extends Model
 {
     use LogsActivity;
 
+    #[\Override]
     protected static function booted(): void
     {
         static::saved(function (): void {

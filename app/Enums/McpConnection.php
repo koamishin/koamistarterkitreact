@@ -31,7 +31,7 @@ enum McpConnection: string
     public static function options(): array
     {
         return collect(self::cases())
-            ->mapWithKeys(fn (McpConnection $connection): array => [$connection->value => $connection->label()])
+            ->mapWithKeys(fn (McpConnection $mcpConnection): array => [$mcpConnection->value => $mcpConnection->label()])
             ->all();
     }
 

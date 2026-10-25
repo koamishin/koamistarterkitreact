@@ -72,7 +72,7 @@ test('providers without an api key are always configured', function (): void {
     expect($aiSettings->isConfigured())->toBeTrue();
 });
 
-test('mcp server definitions are normalized and validated', function () {
+test('mcp server definitions are normalized and validated', function (): void {
     $aiSettings = app(AiSettings::class);
     $aiSettings->mcp_servers = [
         [
@@ -119,7 +119,7 @@ test('mcp server definitions are normalized and validated', function () {
         ]);
 });
 
-test('normalized mcp servers never expose a zero timeout', function () {
+test('normalized mcp servers never expose a zero timeout', function (): void {
     $aiSettings = app(AiSettings::class);
     $aiSettings->mcp_servers = [
         ['name' => 'github', 'connection' => 'web', 'url' => 'https://mcp.example.com', 'timeout' => 0],

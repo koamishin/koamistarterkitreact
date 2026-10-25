@@ -47,6 +47,7 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasEmailAuthentication, MustVerifyEmail, PasskeyUser
 {
+    #[\Override]
     protected static function booted(): void
     {
         static::saved(function (User $user): void {

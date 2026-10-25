@@ -13,10 +13,10 @@ beforeEach(function (): void {
 });
 
 test('browser profile beta consent can be enabled and revoked', function (): void {
-    $page = visit('/settings/profile')->assertSee('Stable experience');
-    $page->click('[aria-label="Opt in to beta access"]')->assertSee('Enrolled in beta')->assertNoJavaScriptErrors();
+    $webpage = visit('/settings/profile')->assertSee('Stable experience');
+    $webpage->click('[aria-label="Opt in to beta access"]')->assertSee('Enrolled in beta')->assertNoJavaScriptErrors();
     expect(User::query()->where('email', 'admin@admin.com')->firstOrFail()->beta_opted_in_at)->not->toBeNull();
-    $page->click('[aria-label="Opt in to beta access"]')->assertSee('Stable experience');
+    $webpage->click('[aria-label="Opt in to beta access"]')->assertSee('Stable experience');
     expect(User::query()->where('email', 'admin@admin.com')->firstOrFail()->beta_opted_in_at)->toBeNull();
 });
 
@@ -42,10 +42,10 @@ test('browser feature preferences persist without inertia response errors', func
     $flag = FeatureFlag::factory()->create([
         'key' => 'browser-beta', 'name' => 'Browser beta', 'stage' => 'beta', 'user_controllable' => true,
     ]);
-    $page = visit('/settings/features')->assertSee('Your feature preferences');
-    $page->click('[aria-label="Opt in to beta access"]')->assertSee('Enrolled in beta');
-    $page->click('[aria-label="Enable Browser beta"]')->assertNoJavaScriptErrors();
-    $page->assertSee('Browser beta');
-    $page->assertAttribute('[aria-label="Enable Browser beta"]', 'aria-checked', 'false');
+    $webpage = visit('/settings/features')->assertSee('Your feature preferences');
+    $webpage->click('[aria-label="Opt in to beta access"]')->assertSee('Enrolled in beta');
+    $webpage->click('[aria-label="Enable Browser beta"]')->assertNoJavaScriptErrors();
+    $webpage->assertSee('Browser beta');
+    $webpage->assertAttribute('[aria-label="Enable Browser beta"]', 'aria-checked', 'false');
     expect($flag->assignments()->where('kind', 'preference')->firstOrFail()->active)->toBeFalse();
 });

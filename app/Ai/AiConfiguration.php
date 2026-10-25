@@ -21,18 +21,18 @@ class AiConfiguration
      */
     public function apply(): void
     {
-        $provider = $this->settings->resolvedProvider();
+        $aiProvider = $this->settings->resolvedProvider();
 
-        config()->set('ai.default', $provider->value);
+        config()->set('ai.default', $aiProvider->value);
 
-        if (blank(config("ai.providers.{$provider->value}.key")) && filled($this->settings->api_key)) {
-            config()->set("ai.providers.{$provider->value}.key", $this->settings->api_key);
+        if (blank(config("ai.providers.{$aiProvider->value}.key")) && filled($this->settings->api_key)) {
+            config()->set("ai.providers.{$aiProvider->value}.key", $this->settings->api_key);
         }
 
-        if ($provider->supportsCustomBaseUrl()
+        if ($aiProvider->supportsCustomBaseUrl()
             && ! $this->settings->usesEnvBaseUrl()
             && filled($this->settings->base_url)) {
-            config()->set("ai.providers.{$provider->value}.url", $this->settings->base_url);
+            config()->set("ai.providers.{$aiProvider->value}.url", $this->settings->base_url);
         }
     }
 

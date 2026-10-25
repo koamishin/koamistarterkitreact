@@ -47,6 +47,7 @@ class FeatureFlag extends Model
         'user_controllable' => false, 'rollout_percentage' => 100,
     ];
 
+    #[\Override]
     protected static function booted(): void
     {
         static::saved(function (): void {
@@ -59,6 +60,7 @@ class FeatureFlag extends Model
         });
     }
 
+    #[\Override]
     protected function casts(): array
     {
         return [
