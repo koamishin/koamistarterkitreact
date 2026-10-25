@@ -162,10 +162,6 @@ return Chisel::script(__DIR__)
             )->removeSectionMarkers('2fa');
         },
         else: function (Chisel $c) use ($paths) {
-            $c->php('app/Models/User.php')
-                ->removeImport('Laravel\Fortify\TwoFactorAuthenticatable')
-                ->removeTrait('TwoFactorAuthenticatable');
-
             $c->files(
                 'app/Models/User.php',
                 'database/factories/UserFactory.php',
@@ -227,8 +223,6 @@ return Chisel::script(__DIR__)
 
             $c->files(...[
                 ...$paths['passkey_files'],
-                'resources/js/components/PasskeyManager.vue',
-                'resources/js/components/SignInWithPasskeyButton.vue',
                 'database/migrations/2026_06_13_011320_create_passkeys_table.php',
             ])->delete();
         },

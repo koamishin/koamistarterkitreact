@@ -1,32 +1,29 @@
 <?php
 
 return [
-    'login' => 'resources/js/pages/auth/Login.vue',
-    'register' => 'resources/js/pages/auth/Register.vue',
-    'welcome' => 'resources/js/pages/Welcome.vue',
-    'profile' => 'resources/js/pages/settings/Profile.vue',
-    'security' => 'resources/js/pages/settings/Security.vue',
-    'verify_email' => 'resources/js/pages/auth/VerifyEmail.vue',
-    'two_factor_challenge' => 'resources/js/pages/auth/TwoFactorChallenge.vue',
-    'confirm_password' => 'resources/js/pages/auth/ConfirmPassword.vue',
+    'login' => 'resources/js/pages/auth/login.tsx',
+    'register' => 'resources/js/pages/auth/register.tsx',
+    'welcome' => 'resources/js/pages/welcome.tsx',
+    'profile' => 'resources/js/pages/settings/profile.tsx',
+    'security' => 'resources/js/pages/settings/security.tsx',
+    'verify_email' => 'resources/js/pages/auth/verify-email.tsx',
+    'two_factor_challenge' => 'resources/js/pages/auth/two-factor-challenge.tsx',
+    'confirm_password' => 'resources/js/pages/auth/confirm-password.tsx',
     'auth_types' => 'resources/js/types/auth.ts',
 
     'two_factor_files' => [
-        'resources/js/components/ManageTwoFactor.vue',
-        'resources/js/components/TwoFactorSetupModal.vue',
-        'resources/js/components/TwoFactorRecoveryCodes.vue',
-        'resources/js/components/ui/input-otp/index.ts',
-        'resources/js/components/ui/input-otp/InputOTP.vue',
-        'resources/js/components/ui/input-otp/InputOTPGroup.vue',
-        'resources/js/components/ui/input-otp/InputOTPSeparator.vue',
-        'resources/js/components/ui/input-otp/InputOTPSlot.vue',
-        'resources/js/composables/useTwoFactorAuth.ts',
+        'resources/js/components/manage-two-factor.tsx',
+        'resources/js/components/two-factor-setup-modal.tsx',
+        'resources/js/components/two-factor-recovery-codes.tsx',
+        'resources/js/components/ui/input-otp.tsx',
     ],
 
-    'two_factor_otp_package' => 'vue-input-otp',
+    'two_factor_otp_package' => 'input-otp',
 
-    // This kit manages passkeys via PasskeyManager.vue and
-    // SignInWithPasskeyButton.vue, which chisel.php already deletes
-    // directly when the passkeys feature is disabled.
-    'passkey_files' => [],
+    'passkey_files' => [
+        'resources/js/components/manage-passkeys.tsx',
+        'resources/js/components/passkey-item.tsx',
+        'resources/js/components/passkey-register.tsx',
+        'resources/js/components/passkey-verify.tsx',
+    ],
 ];
