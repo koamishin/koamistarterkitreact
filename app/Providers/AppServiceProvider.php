@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Ai\LaravelMcpServerConnector;
+use App\Ai\McpServerConnector;
 use App\Features\FeatureRegistry;
 use Carbon\CarbonImmutable;
 use Filament\Panel;
@@ -20,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
     #[\Override]
     public function register(): void
     {
+        $this->app->bind(McpServerConnector::class, LaravelMcpServerConnector::class);
+
         $this->registerFilamentPlugins();
     }
 
