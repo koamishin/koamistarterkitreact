@@ -12,10 +12,10 @@
 
   <p align="center">
     <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-13-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel 13" /></a>
-    <a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue.js-3-4FC08D?style=for-the-badge&logo=vue.js" alt="Vue 3" /></a>
-    <a href="https://inertiajs.com"><img src="https://img.shields.io/badge/Inertia-v2-9553E9?style=for-the-badge&logo=inertia" alt="Inertia v2" /></a>
+    <a href="https://react.dev"><img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react" alt="React 19" /></a>
+    <a href="https://inertiajs.com"><img src="https://img.shields.io/badge/Inertia-v3-9553E9?style=for-the-badge&logo=inertia" alt="Inertia v3" /></a>
     <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind 4" /></a>
-    <a href="https://ui.shadcn.com"><img src="https://img.shields.io/badge/Shadcn-Vue-000000?style=for-the-badge&logo=shadcnui" alt="Shadcn Vue" /></a>
+    <a href="https://ui.shadcn.com"><img src="https://img.shields.io/badge/Shadcn-UI-000000?style=for-the-badge&logo=shadcnui" alt="Shadcn UI" /></a>
   </p>
 </div>
 
@@ -55,6 +55,8 @@ Use it as-is, fork it, or cherry-pick the parts you like—whatever gets you cod
 **Battery-included, but not bloated.** Everything you need to ship.
 
 - **🔐 Complete Authentication**: Powered by **Fortify**. Login, Registration, 2FA, Email Verification, Passkeys, and Profile Management ready to go.
+- **⚡ Developer Quick Login**: One-click developer authentication on the login page in `local` environment (`APP_ENV=local`). Instantly sign in as seeded accounts (Super Admin, User) without typing credentials. Strictly disabled (returns 404) in non-local environments.
+- **🤖 Laravel AI SDK & MCP**: Integrated **laravel/ai** and **laravel/mcp** with dynamic configuration via Filament Settings. Supports 10+ providers (OpenAI, Anthropic, Gemini, Groq, Ollama, xAI, DeepSeek, Mistral, OpenRouter, and custom endpoints) and connects external Model Context Protocol (MCP) servers.
 - **🔑 Social Login**: Login with **GitHub**, **Google**, or **Facebook** via Laravel Socialite. Configure credentials through the admin panel (stored in DB or `.env`).
 - **📦 Modular Architecture**: Built on **nwidart/laravel-modules** — extend with self-contained modules that register their own routes, Filament resources, and Inertia pages.
 - **👥 Roles & Permissions**: Built-in **Spatie Permissions**. Manage **Admins** (Filament access) and **Users** (Inertia access) out of the box.
@@ -64,9 +66,9 @@ Use it as-is, fork it, or cherry-pick the parts you like—whatever gets you cod
 - **🕵️‍♂️ User Impersonation**: Admins can easily impersonate users to troubleshoot issues, with a visible banner and quick "Leave" action.
 - **🔔 Database Notifications**: Built-in notification system with a bell icon in the sidebar header. Shows unread count, dropdown list, and mark as read functionality.
 - **🎛️ Admin Panel**: Pre-configured **Filament** admin dashboard with User Management.
-- **🎨 40+ UI Components**: Beautiful, accessible components from **Shadcn Vue**, plus dark mode and multiple themes (Default, Rose, Ocean, Sage Garden, Claude).
+- **🎨 40+ UI Components**: Beautiful, accessible components from **Shadcn UI (React)**, plus dark mode and multiple themes (Default, Rose, Ocean, Sage Garden, Claude).
 - **🛠️ Type-Safe Routing**: **Wayfinder** ensures your frontend knows your backend routes. No more broken links.
-- **⚡ High Performance**: **Laravel Octane** + **Inertia.js v2** + **Vite** for instant page loads.
+- **⚡ High Performance**: **Laravel Octane** + **Inertia.js v3** + **Vite** for instant page loads.
 - **🚢 Production Ready**: **Docker** support, **GitHub Actions** CI/CD, and strict code quality tools (Pint, PHPStan, Rector) pre-configured.
 
 ---
@@ -343,6 +345,37 @@ The passkey sign-in button appears automatically on the login page when the feat
 ```env
 # Config is handled via the admin Application Features settings page
 # and the config/passkeys.php file
+```
+
+---
+
+### ⚡ Developer Quick Login (Local Environment)
+
+In local development (`APP_ENV=local`), the login screen automatically renders a **Quick Developer Login** panel. Developers can click any seeded account to authenticate instantly with one click without entering passwords or passing MFA challenges:
+
+- **Admin User** (`admin@admin.com`) — `Super Admin` role with full Filament admin panel access
+- **Regular User** (`user@user.com`) — `User` role for Inertia frontend testing
+- Default password for manual login: `password`
+
+> **Security**: The developer login route (`/developer-login`) and login panel are strictly gated by `app()->environment('local')`. In testing, staging, and production environments, the endpoint unconditionally returns `404 Not Found`, and no developer accounts are exposed to the frontend.
+
+---
+
+### 🤖 Laravel AI SDK & Model Context Protocol (MCP)
+
+This starter kit includes first-party integration with **laravel/ai** and **laravel/mcp**, completely configurable at runtime through the Filament admin panel under **Settings > AI & MCP**.
+
+#### Features
+
+- **Dynamic Provider Selection**: Switch between 10+ providers (OpenAI, Anthropic, Google Gemini, Groq, xAI, DeepSeek, Mistral, OpenRouter, Ollama, and OpenAI-compatible endpoints) without touching `.env`.
+- **Precedence**: Environment variables (e.g. `OPENAI_API_KEY`) automatically take precedence over database-stored values when present.
+- **Model Context Protocol (MCP) Tools**: Connect external MCP servers (remote HTTP or local CLI commands) to dynamically feed tools to AI agents.
+- **Built-in Assistant**: Pre-configured `ApplicationAgent` exposing application information and connected MCP tools.
+- **Test Connection Action**: Verify credentials and provider responses directly from the Filament settings interface.
+- **CLI Prompting**: Test and query the assistant via Artisan:
+
+```bash
+php artisan ai:ask "What is this application about?"
 ```
 
 ---

@@ -2,6 +2,9 @@ import { Form, Head } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import SocialLoginButtons from '@/components/social-login-buttons';
+import DeveloperLogins, {
+    type DeveloperUser,
+} from '@/components/developer-logins';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -21,9 +24,14 @@ type Props = {
     status?: string;
     canResetPassword: boolean;
     canRegister: boolean;
+    developerUsers?: DeveloperUser[];
 };
 
-export default function Login({ status, canResetPassword }: Props) {
+export default function Login({
+    status,
+    canResetPassword,
+    developerUsers,
+}: Props) {
     return (
         <>
             <Head title="Log in" />
@@ -119,6 +127,7 @@ export default function Login({ status, canResetPassword }: Props) {
             )}
 
             <SocialLoginButtons />
+            <DeveloperLogins users={developerUsers} />
         </>
     );
 }
