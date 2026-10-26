@@ -6,6 +6,7 @@ use AlizHarb\ActivityLog\ActivityLogPlugin;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Dashboard;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
 use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Auth\MultiFactor\Email\EmailAuthentication;
@@ -86,6 +87,7 @@ class AdminPanelProvider extends PanelProvider
                     ->pluralLabel('Logs')
                     ->navigationGroup('System'),
                 FilamentPasskeysPlugin::make(),
+                FilamentFlexFieldsPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,

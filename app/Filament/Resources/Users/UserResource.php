@@ -8,6 +8,9 @@ use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Models\User;
 use BackedEnum;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexDateTimePicker;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -15,9 +18,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -45,26 +45,26 @@ class UserResource extends Resource
             ->components([
                 Section::make('User Details')
                     ->components([
-                        TextInput::make('name')
+                        FlexTextInput::make('name')
                             ->required()
                             ->maxLength(255),
-                        TextInput::make('email')
+                        FlexTextInput::make('email')
                             ->email()
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
-                        TextInput::make('password')
+                        FlexTextInput::make('password')
                             ->password()
                             ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                             ->dehydrated(fn ($state): bool => filled($state))
                             ->required(fn (string $context): bool => $context === 'create')
                             ->confirmed()
                             ->maxLength(255),
-                        TextInput::make('password_confirmation')
+                        FlexTextInput::make('password_confirmation')
                             ->password()
                             ->required(fn (string $context): bool => $context === 'create')
                             ->visible(fn (string $context): bool => $context === 'create' || $context === 'edit'),
-                        Select::make('roles')
+                        SelectField::make('roles')
                             ->relationship('roles', 'name')
                             ->multiple()
                             ->preload()
@@ -73,7 +73,7 @@ class UserResource extends Resource
 
                 Section::make('Security')
                     ->components([
-                        DateTimePicker::make('email_verified_at')
+                        FlexDateTimePicker::make('email_verified_at')
                             ->label('Email Verified At')
                             ->helperText('Leave empty to keep unverified.'),
                     ])->columns(2)

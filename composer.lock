@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "283598458269e874c255e52f2d97b8c8",
+    "content-hash": "5e5c7225a1ab4304f6e0e0704a1cd0f4",
     "packages": [
         {
             "name": "alizharb/filament-activity-log",
@@ -2181,6 +2181,140 @@
             "time": "2025-12-03T09:33:47+00:00"
         },
         {
+            "name": "giggsey/libphonenumber-for-php",
+            "version": "9.0.41",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/giggsey/libphonenumber-for-php.git",
+                "reference": "9b954c5020364210dd4f2f15f881c0ddf2a78862"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/9b954c5020364210dd4f2f15f881c0ddf2a78862",
+                "reference": "9b954c5020364210dd4f2f15f881c0ddf2a78862",
+                "shasum": ""
+            },
+            "require": {
+                "giggsey/locale": "^2.7",
+                "php": "^8.1",
+                "symfony/polyfill-mbstring": "^1.31"
+            },
+            "replace": {
+                "giggsey/libphonenumber-for-php-lite": "self.version"
+            },
+            "require-dev": {
+                "ext-dom": "*",
+                "friendsofphp/php-cs-fixer": "^3.71",
+                "infection/infection": "^0.29|^0.31.0",
+                "nette/php-generator": "^4.1",
+                "php-coveralls/php-coveralls": "^2.7",
+                "phpstan/extension-installer": "^1.4.3",
+                "phpstan/phpstan": "^2.1.7",
+                "phpstan/phpstan-deprecation-rules": "^2.0.1",
+                "phpstan/phpstan-phpunit": "^2.0.4",
+                "phpstan/phpstan-strict-rules": "^2.0.3",
+                "phpunit/phpunit": "^10.5.45",
+                "symfony/console": "^6.4",
+                "symfony/filesystem": "^6.4",
+                "symfony/process": "^6.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "9.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "libphonenumber\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Joshua Gigg",
+                    "email": "giggsey@gmail.com",
+                    "homepage": "https://giggsey.com/"
+                }
+            ],
+            "description": "A library for parsing, formatting, storing and validating international phone numbers, a PHP Port of Google's libphonenumber.",
+            "homepage": "https://github.com/giggsey/libphonenumber-for-php",
+            "keywords": [
+                "geocoding",
+                "geolocation",
+                "libphonenumber",
+                "mobile",
+                "phonenumber",
+                "validation"
+            ],
+            "support": {
+                "issues": "https://github.com/giggsey/libphonenumber-for-php/issues",
+                "source": "https://github.com/giggsey/libphonenumber-for-php"
+            },
+            "time": "2026-10-08T08:51:49+00:00"
+        },
+        {
+            "name": "giggsey/locale",
+            "version": "2.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/giggsey/Locale.git",
+                "reference": "c13d22635eac0e51d1dcd7f09b99fd7475209a51"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/giggsey/Locale/zipball/c13d22635eac0e51d1dcd7f09b99fd7475209a51",
+                "reference": "c13d22635eac0e51d1dcd7f09b99fd7475209a51",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "friendsofphp/php-cs-fixer": "^3.66",
+                "infection/infection": "^0.29|^0.32.0",
+                "php-coveralls/php-coveralls": "^2.7",
+                "phpstan/extension-installer": "^1.4.3",
+                "phpstan/phpstan": "^2.1.7",
+                "phpstan/phpstan-deprecation-rules": "^2.0.1",
+                "phpstan/phpstan-phpunit": "^2.0.4",
+                "phpstan/phpstan-strict-rules": "^2.0.3",
+                "phpunit/phpunit": "^10.5.45",
+                "symfony/console": "^6.4",
+                "symfony/filesystem": "^6.4",
+                "symfony/finder": "^6.4",
+                "symfony/process": "^6.4",
+                "symfony/var-exporter": "^6.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Giggsey\\Locale\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Joshua Gigg",
+                    "email": "giggsey@gmail.com",
+                    "homepage": "https://giggsey.com/"
+                }
+            ],
+            "description": "Locale functions required by libphonenumber-for-php",
+            "support": {
+                "issues": "https://github.com/giggsey/Locale/issues",
+                "source": "https://github.com/giggsey/Locale/tree/2.10.0"
+            },
+            "time": "2026-10-22T19:31:33+00:00"
+        },
+        {
             "name": "graham-campbell/result-type",
             "version": "v1.2.0",
             "source": {
@@ -2730,6 +2864,199 @@
                 "source": "https://github.com/inertiajs/inertia-laravel/tree/v3.3.4"
             },
             "time": "2026-09-11T13:57:53+00:00"
+        },
+        {
+            "name": "janczakb/blade-hugeicons",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/janczakb/blade-hugeicons.git",
+                "reference": "96a698cfbe0e28b89652d44f9cba7938084ed1ed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/janczakb/blade-hugeicons/zipball/96a698cfbe0e28b89652d44f9cba7938084ed1ed",
+                "reference": "96a698cfbe0e28b89652d44f9cba7938084ed1ed",
+                "shasum": ""
+            },
+            "require": {
+                "blade-ui-kit/blade-icons": "^1.8",
+                "illuminate/support": "^11.0|^12.0|^13.0",
+                "php": "^8.3"
+            },
+            "conflict": {
+                "afatmustafa/blade-hugeicons": "*"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^10.0|^11.0",
+                "phpunit/phpunit": "^11.5|^12.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Bjanczak\\BladeHugeicons\\BladeHugeiconsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Bjanczak\\BladeHugeicons\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Official Hugeicons Free SVG icons for Laravel Blade and Filament, generated from the pinned upstream npm release.",
+            "keywords": [
+                "Hugeicons",
+                "blade",
+                "filament",
+                "icons",
+                "laravel",
+                "svg"
+            ],
+            "support": {
+                "issues": "https://github.com/janczakb/blade-hugeicons/issues",
+                "source": "https://github.com/janczakb/blade-hugeicons/tree/1.0"
+            },
+            "time": "2026-10-14T04:20:25+00:00"
+        },
+        {
+            "name": "janczakb/filament-flex-fields",
+            "version": "4.0.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/janczakb/filament-flex-fields.git",
+                "reference": "cb5bc53d73d76930468f52a23f4611f4c3f174e5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/janczakb/filament-flex-fields/zipball/cb5bc53d73d76930468f52a23f4611f4c3f174e5",
+                "reference": "cb5bc53d73d76930468f52a23f4611f4c3f174e5",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^5.6",
+                "giggsey/libphonenumber-for-php": "^9.0",
+                "janczakb/blade-hugeicons": "^1.0",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "filament/spatie-laravel-media-library-plugin": "^5.6",
+                "laravel/octane": "^2",
+                "orchestra/testbench": "^11.1",
+                "pestphp/pest": "^4.0",
+                "pestphp/pest-plugin-laravel": "^4.0",
+                "phpstan/phpstan": "^2.0",
+                "spatie/laravel-medialibrary": "^11.0",
+                "spatie/laravel-sluggable": "^4.0",
+                "spatie/laravel-tags": "^4.11"
+            },
+            "suggest": {
+                "ext-exif": "JPEG auto orientation in native Media OS image conversions.",
+                "ext-gd": "Optional native Media OS image conversions; the GD build determines WebP/AVIF availability.",
+                "filament/spatie-laravel-media-library-plugin": "Optional Filament Spatie Media Library file upload base class for FlexSpatieMediaLibraryFileUpload.",
+                "spatie/laravel-medialibrary": "Optional Spatie Media Library integration via FlexSpatieMediaLibraryFileUpload.",
+                "spatie/laravel-sluggable": "Optional model-based slug generation for SlugField via spatieModel().",
+                "spatie/laravel-tags": "Optional Spatie Tags integration via FlexSpatieTagsField (set use_spatie_tags in field config).",
+                "spatie/laravel-translatable": "Optional JSON translation storage for translatable TitleSlugField titles via spatieTranslatable()."
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "FlexFields": "Bjanczak\\FilamentFlexFields\\Facades\\FlexFields"
+                    },
+                    "providers": [
+                        "Bjanczak\\FilamentFlexFields\\FilamentFlexFieldsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Bjanczak\\FilamentFlexFields\\": "src/",
+                    "Bjanczak\\FilamentFlexFields\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "Bartek Janczak",
+                    "email": "barek122@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Filament v5 form fields plugin for Laravel — 79 components, virtualized Select with async search, Spatie Media Library & disk/S3 uploads, JSON custom fields without EAV, surveys, maps, signatures, lazy CSS/JS, Playground.",
+            "homepage": "https://github.com/janczakb/filament-flex-fields",
+            "keywords": [
+                "Combobox",
+                "Forms",
+                "NPS",
+                "address-autocomplete",
+                "admin-form-components",
+                "admin-panel",
+                "alpinejs",
+                "async-search",
+                "barcode-scanner",
+                "choice-cards",
+                "cms-fields",
+                "code-splitting",
+                "country-picker",
+                "currency-field",
+                "custom-fields",
+                "custom-fields-json",
+                "dynamic-fields",
+                "filament",
+                "filament-fields",
+                "filament-form-fields",
+                "filament-forms",
+                "filament-plugin",
+                "filament-select",
+                "filament-v5",
+                "file-upload",
+                "flex-fields",
+                "form-components",
+                "geocoding",
+                "image-choice-cards",
+                "international-phone",
+                "json-attributes",
+                "json-custom-fields",
+                "laravel",
+                "lazy-loading",
+                "map-picker",
+                "mapbox",
+                "matrix-choice",
+                "media-ingress",
+                "phone-input",
+                "select-field",
+                "signature-pad",
+                "slug-field",
+                "spatie-media-library",
+                "spatie-medialibrary",
+                "tailwindcss",
+                "translatable",
+                "virtualized-select"
+            ],
+            "support": {
+                "issues": "https://github.com/janczakb/filament-flex-fields/issues",
+                "source": "https://github.com/janczakb/filament-flex-fields/tree/4.0.11"
+            },
+            "funding": [
+                {
+                    "url": "https://www.buymeacoffee.com/janczakb",
+                    "type": "buy_me_a_coffee"
+                },
+                {
+                    "url": "https://github.com/janczakb",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-10-24T10:59:13+00:00"
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",

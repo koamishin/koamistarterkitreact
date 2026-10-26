@@ -68,7 +68,7 @@ class ManagedFeatureDriver extends DatabaseDriver
         if ($features !== null) {
             $builder->whereHas('featureFlag', fn ($query) => $query->whereIn('key', $features));
         }
-        $query->get()->each->delete();
+        $builder->get()->each->delete();
         parent::purge($features);
     }
 }

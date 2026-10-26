@@ -9,11 +9,12 @@ use App\Enums\AiProvider;
 use App\Enums\McpConnection;
 use App\Filament\Clusters\Settings\SettingsCluster;
 use App\Settings\AiSettings;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\NumberStepper;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -79,7 +80,7 @@ class AiSettingsPage extends Page
                                 ->offColor('gray')
                                 ->columnSpanFull(),
 
-                            Select::make('provider')
+                            SelectField::make('provider')
                                 ->label('Provider')
                                 ->options(AiProvider::options())
                                 ->searchable()
@@ -87,17 +88,16 @@ class AiSettingsPage extends Page
                                 ->required()
                                 ->helperText(fn (): ?string => $this->provider()?->description()),
 
-                            TextInput::make('model')
+                            FlexTextInput::make('model')
                                 ->label('Model')
                                 ->placeholder(fn (): string => $this->provider()?->defaultModel() ?? 'model-name')
                                 ->maxLength(255)
                                 ->required(fn (): bool => $this->provider()?->defaultModel() === null)
                                 ->helperText('Leave blank to use the provider default model.'),
 
-                            TextInput::make('api_key')
+                            FlexTextInput::make('api_key')
                                 ->label('API Key')
                                 ->password()
-                                ->revealable()
                                 ->maxLength(255)
                                 ->visible(fn (): bool => $this->provider()?->requiresApiKey() ?? true)
                                 ->required(fn (): bool => $this->getEnabled()
@@ -107,7 +107,7 @@ class AiSettingsPage extends Page
                                     ? 'Provided by the environment; the saved value is ignored.'
                                     : 'Stored in the database and used when no environment key is set.'),
 
-                            TextInput::make('base_url')
+                            FlexTextInput::make('base_url')
                                 ->label('Base URL')
                                 ->placeholder('https://api.openai.com/v1')
                                 ->url()
@@ -131,21 +131,21 @@ class AiSettingsPage extends Page
                             Repeater::make('mcp_servers')
                                 ->label('Servers')
                                 ->schema([
-                                    TextInput::make('name')
+                                    FlexTextInput::make('name')
                                         ->label('Name')
                                         ->placeholder('github')
                                         ->maxLength(100)
                                         ->required()
                                         ->columnSpanFull(),
 
-                                    Select::make('connection')
+                                    SelectField::make('connection')
                                         ->label('Connection')
                                         ->options(McpConnection::options())
                                         ->default(McpConnection::Web->value)
                                         ->live()
                                         ->required(),
 
-                                    TextInput::make('url')
+                                    FlexTextInput::make('url')
                                         ->label('URL')
                                         ->placeholder('https://mcp.example.com')
                                         ->url()
@@ -153,22 +153,21 @@ class AiSettingsPage extends Page
                                         ->required(fn (Get $get): bool => $get('connection') === McpConnection::Web->value)
                                         ->visible(fn (Get $get): bool => $get('connection') === McpConnection::Web->value),
 
-                                    TextInput::make('token')
+                                    FlexTextInput::make('token')
                                         ->label('Bearer Token')
                                         ->password()
-                                        ->revealable()
                                         ->maxLength(255)
                                         ->visible(fn (Get $get): bool => $get('connection') === McpConnection::Web->value),
 
-                                    TextInput::make('timeout')
+                                    NumberStepper::make('timeout')
                                         ->label('Timeout (seconds)')
-                                        ->numeric()
                                         ->default(30)
                                         ->minValue(1)
                                         ->maxValue(300)
+                                        ->step(5)
                                         ->required(),
 
-                                    TextInput::make('command')
+                                    FlexTextInput::make('command')
                                         ->label('Command')
                                         ->placeholder('npx')
                                         ->maxLength(255)

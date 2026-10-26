@@ -11,11 +11,15 @@ use App\Models\FeatureFlag;
 use App\Models\RoleFeature;
 use App\Models\User;
 use BackedEnum;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexDateTimePicker;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexSlider;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextareaField;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
@@ -59,24 +63,24 @@ class FeatureFlagResource extends Resource
                     TextInput::make('key')->required()->maxLength(100)->regex('/^[a-z][a-z0-9_.-]*$/')->unique(ignoreRecord: true)
                         ->disabled(fn (?FeatureFlag $featureFlag): bool => $featureFlag instanceof FeatureFlag)->dehydrated()
                         ->helperText('Permanent key used by backend checks and frontend flags.'),
-                    TextInput::make('name')->required()->maxLength(255),
-                    Textarea::make('description')->maxLength(5000)->columnSpanFull(),
-                    TextInput::make('owner')->maxLength(255),
+                    FlexTextInput::make('name')->required()->maxLength(255),
+                    FlexTextareaField::make('description')->maxLength(5000)->columnSpanFull(),
+                    FlexTextInput::make('owner')->maxLength(255),
                     TagsInput::make('tags'),
                 ])->columns(2)->columnSpanFull(),
             Section::make('Release & rollout')->schema([
-                Select::make('stage')->options(FeatureStage::options())->default('draft')->required(),
-                TextInput::make('release_version')->maxLength(80)->helperText('Promote matching beta flags with features:release <version>.'),
+                SelectField::make('stage')->options(FeatureStage::options())->default('draft')->required(),
+                FlexTextInput::make('release_version')->maxLength(80)->helperText('Promote matching beta flags with features:release <version>.'),
                 Toggle::make('enabled')->default(false)->helperText('Global kill switch. Off always denies access.'),
                 Toggle::make('default_value')->default(false)->label('Active by default')->helperText('Enable for eligible users without a personal preference.'),
                 Toggle::make('user_controllable')->default(false)->label('Allow user preferences')->helperText('Expose in profile feature settings; never allows bypassing audience restrictions.'),
-                TextInput::make('rollout_percentage')->numeric()->integer()->minValue(0)->maxValue(100)->default(100)->required()
+                FlexSlider::make('rollout_percentage')->minValue(0)->maxValue(100)->step(5)->default(100)->required()
                     ->helperText('Deterministic user cohorts. Increasing rollout keeps existing recipients.'),
                 TagsInput::make('environments')->helperText('Empty means all environments. Values match APP_ENV, e.g. production.'),
-                Select::make('target_roles')->multiple()->options(fn (): array => Role::query()->pluck('name', 'name')->all())
+                SelectField::make('target_roles')->multiple()->options(fn (): array => Role::query()->pluck('name', 'name')->all())
                     ->helperText('Empty means all roles; explicit legacy role denies still apply.'),
-                DateTimePicker::make('starts_at'),
-                DateTimePicker::make('ends_at')->after('starts_at'),
+                FlexDateTimePicker::make('starts_at'),
+                FlexDateTimePicker::make('ends_at')->after('starts_at'),
             ])->columns(2)->columnSpanFull(),
             Section::make('Targeting rules')->description('All rules must match. Rules only use explicitly supported attributes.')
                 ->schema([
@@ -95,7 +99,7 @@ class FeatureFlagResource extends Resource
     {
         return $table->defaultSort('updated_at', 'desc')->columns([
             TextColumn::make('name')->searchable()->sortable()->description(fn (FeatureFlag $featureFlag): string => $featureFlag->key),
-            TextColumn::make('stage')->badge()->color(fn (FeatureStage $featureStage): string => match ($featureStage) {
+            TextColumn::make('stage')->badge()->color(fn ($state): string => match ($state instanceof FeatureStage ? $state : FeatureStage::tryFrom((string) $state)) {
                 FeatureStage::Stable => 'success', FeatureStage::Beta => 'warning', default => 'gray',
             }),
             IconColumn::make('enabled')->boolean()->label('Live'),
