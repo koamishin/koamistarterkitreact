@@ -14,73 +14,73 @@ beforeEach(function (): void {
 });
 
 test('browser can visit filawarden executive dashboard', function (): void {
-    $page = visit('/admin/filawarden/dashboard');
+    $pendingAwaitablePage = visit('/admin/filawarden/dashboard');
 
-    $page->assertSee('Executive Operations Dashboard')
+    $pendingAwaitablePage->assertSee('Executive Operations Dashboard')
         ->assertNoJavaScriptErrors()
         ->screenshot(fullPage: false, filename: 'filawarden-executive-dashboard');
 });
 
 test('browser can visit filawarden deployment auditor page', function (): void {
-    $page = visit('/admin/filawarden/deployment-auditor');
+    $pendingAwaitablePage = visit('/admin/filawarden/deployment-auditor');
 
-    $page->assertSee('Deployment Readiness Auditor')
+    $pendingAwaitablePage->assertSee('Deployment Readiness Auditor')
         ->assertNoJavaScriptErrors()
         ->screenshot(fullPage: false, filename: 'filawarden-deployment-auditor');
 });
 
 test('browser can visit filawarden infrastructure monitor page', function (): void {
-    $page = visit('/admin/filawarden/infrastructure');
+    $pendingAwaitablePage = visit('/admin/filawarden/infrastructure');
 
-    $page->assertSee('Infrastructure Telemetry')
+    $pendingAwaitablePage->assertSee('Infrastructure Telemetry')
         ->assertNoJavaScriptErrors()
         ->screenshot(fullPage: false, filename: 'filawarden-infrastructure');
 });
 
 test('browser can visit filawarden database health page', function (): void {
-    $page = visit('/admin/filawarden/database-health');
+    $pendingAwaitablePage = visit('/admin/filawarden/database-health');
 
-    $page->assertSee('Database Performance & Health')
+    $pendingAwaitablePage->assertSee('Database Performance & Health')
         ->assertNoJavaScriptErrors()
         ->screenshot(fullPage: false, filename: 'filawarden-database-health');
 });
 
 test('browser can visit filawarden scheduler monitor page', function (): void {
-    $page = visit('/admin/filawarden/scheduler-monitor');
+    $pendingAwaitablePage = visit('/admin/filawarden/scheduler-monitor');
 
-    $page->assertSee('Scheduled Tasks & Cron Monitor')
+    $pendingAwaitablePage->assertSee('Scheduled Tasks & Cron Monitor')
         ->assertNoJavaScriptErrors()
         ->screenshot(fullPage: false, filename: 'filawarden-scheduler-monitor');
 });
 
 test('browser can visit filawarden queue monitor page', function (): void {
-    $page = visit('/admin/filawarden/queue-monitor');
+    $pendingAwaitablePage = visit('/admin/filawarden/queue-monitor');
 
-    $page->assertSee('Queue & Background Jobs Monitor')
+    $pendingAwaitablePage->assertSee('Queue & Background Jobs Monitor')
         ->assertNoJavaScriptErrors()
         ->screenshot(fullPage: false, filename: 'filawarden-queue-monitor');
 });
 
 test('browser can visit filawarden risk files page', function (): void {
-    $page = visit('/admin/filawarden/risk-files');
+    $pendingAwaitablePage = visit('/admin/filawarden/risk-files');
 
-    $page->assertSee('Dangerous & Risk File Scanner')
+    $pendingAwaitablePage->assertSee('Dangerous & Risk File Scanner')
         ->assertNoJavaScriptErrors()
         ->screenshot(fullPage: false, filename: 'filawarden-risk-files');
 });
 
 test('browser can visit filawarden error logs page', function (): void {
-    $page = visit('/admin/filawarden/error-logs');
+    $pendingAwaitablePage = visit('/admin/filawarden/error-logs');
 
-    $page->assertSee('Application Log & Exception Reader')
+    $pendingAwaitablePage->assertSee('Application Log & Exception Reader')
         ->assertNoJavaScriptErrors()
         ->screenshot(fullPage: false, filename: 'filawarden-error-logs');
 });
 
 test('browser can visit filawarden ssl monitor page', function (): void {
-    $page = visit('/admin/filawarden/ssl-monitor');
+    $pendingAwaitablePage = visit('/admin/filawarden/ssl-monitor');
 
-    $page->assertSee('SSL / TLS Certificate Sentinel')
+    $pendingAwaitablePage->assertSee('SSL / TLS Certificate Sentinel')
         ->assertNoJavaScriptErrors()
         ->screenshot(fullPage: false, filename: 'filawarden-ssl-monitor');
 });
