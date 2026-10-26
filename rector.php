@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
-use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
+use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -15,6 +15,9 @@ return RectorConfig::configure()
         __DIR__.'/bootstrap/cache',
         __DIR__.'/storage',
         __DIR__.'/vendor',
+        RenameParamToMatchTypeRector::class => [
+            __DIR__.'/app/Filament',
+        ],
     ])
     ->withPhpSets(
         php82: true,
@@ -27,7 +30,4 @@ return RectorConfig::configure()
         naming: true,
         instanceOf: true,
         earlyReturn: true,
-    )
-    ->withRules([
-        AddVoidReturnTypeWhereNoReturnRector::class,
-    ]);
+    );
