@@ -23,11 +23,13 @@ class Dashboard extends BaseDashboard
 {
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedSquares2x2;
 
+    #[\Override]
     public function getTitle(): string|Htmlable
     {
         return 'Self-Hosted Control Center';
     }
 
+    #[\Override]
     public function getSubheading(): string|Htmlable|null
     {
         return 'System health, real-time node telemetry, and instance controls';
@@ -36,6 +38,7 @@ class Dashboard extends BaseDashboard
     /**
      * @return int | array<string, ?int>
      */
+    #[\Override]
     public function getColumns(): int|array
     {
         return [
@@ -48,6 +51,7 @@ class Dashboard extends BaseDashboard
     /**
      * @return array<class-string<Widget> | WidgetConfiguration>
      */
+    #[\Override]
     public function getWidgets(): array
     {
         return [
@@ -62,6 +66,7 @@ class Dashboard extends BaseDashboard
     /**
      * @return array<Action>
      */
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

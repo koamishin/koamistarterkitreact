@@ -143,17 +143,17 @@ class UserResource extends Resource
                 ImageColumn::make('profile_photo_url')
                     ->label('')
                     ->circular()
-                    ->defaultImageUrl(fn (User $record): string => 'https://ui-avatars.com/api/?name='.urlencode($record->name).'&color=D97706&background=FEF3C7')
+                    ->defaultImageUrl(fn (User $user): string => 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&color=D97706&background=FEF3C7')
                     ->grow(false),
 
                 TextColumn::make('name')
                     ->label('User')
-                    ->description(fn (User $record): string => $record->email)
+                    ->description(fn (User $user): string => $user->email)
                     ->searchable(['name', 'email'])
                     ->sortable()
                     ->weight('semibold')
                     ->copyable()
-                    ->copyableState(fn (User $record): string => $record->email)
+                    ->copyableState(fn (User $user): string => $user->email)
                     ->copyMessage('Email copied to clipboard'),
 
                 TextColumn::make('roles.name')
@@ -175,7 +175,7 @@ class UserResource extends Resource
                 TextColumn::make('email_verified_at')
                     ->label('Email Status')
                     ->badge()
-                    ->state(fn (User $record): string => $record->email_verified_at ? 'Verified' : 'Unverified')
+                    ->state(fn (User $user): string => $user->email_verified_at ? 'Verified' : 'Unverified')
                     ->color(fn (string $state): string => $state === 'Verified' ? 'success' : 'danger')
                     ->icon(fn (string $state): string => $state === 'Verified' ? 'heroicon-m-check-circle' : 'heroicon-m-x-circle')
                     ->sortable(),
@@ -183,20 +183,20 @@ class UserResource extends Resource
                 TextColumn::make('mfa_status')
                     ->label('Security')
                     ->badge()
-                    ->state(function (User $record): string {
-                        if ($record->app_authentication_secret && $record->has_email_authentication) {
+                    ->state(function (User $user): string {
+                        if ($user->app_authentication_secret && $user->has_email_authentication) {
                             return 'App & Email';
                         }
-                        if ($record->app_authentication_secret) {
+                        if ($user->app_authentication_secret) {
                             return 'Authenticator';
                         }
-                        if ($record->has_email_authentication) {
+                        if ($user->has_email_authentication) {
                             return 'Email OTP';
                         }
-                        if ($record->two_factor_secret) {
+                        if ($user->two_factor_secret) {
                             return 'Fortify 2FA';
                         }
-                        if ($record->passkeys()->exists()) {
+                        if ($user->passkeys()->exists()) {
                             return 'Passkey';
                         }
 
@@ -208,7 +208,7 @@ class UserResource extends Resource
                 TextColumn::make('created_at')
                     ->label('Joined')
                     ->dateTime('M d, Y')
-                    ->description(fn (User $record): string => $record->created_at?->diffForHumans() ?? '')
+                    ->description(fn (User $user): string => $user->created_at?->diffForHumans() ?? '')
                     ->sortable()
                     ->toggleable(),
             ])
@@ -224,7 +224,7 @@ class UserResource extends Resource
 
                 Filter::make('has_mfa')
                     ->label('MFA Enabled')
-                    ->query(fn (Builder $query) => $query->where(function ($q): void {
+                    ->query(fn (Builder $builder) => $builder->where(function ($q): void {
                         $q->whereNotNull('app_authentication_secret')
                             ->orWhere('has_email_authentication', true)
                             ->orWhereNotNull('two_factor_secret')
@@ -272,7 +272,7 @@ class UserResource extends Resource
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make()
-                        ->hidden(fn (User $record): bool => $record->id === Auth::id()),
+                        ->hidden(fn (User $user): bool => $user->id === Auth::id()),
                 ]),
             ])
             ->toolbarActions([

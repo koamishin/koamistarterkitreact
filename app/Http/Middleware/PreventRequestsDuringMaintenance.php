@@ -31,6 +31,7 @@ class PreventRequestsDuringMaintenance extends BaseMiddleware
      * @param  Request  $request
      * @return mixed
      */
+    #[\Override]
     public function handle($request, Closure $next)
     {
         if ($this->inExceptArray($request)) {
@@ -55,7 +56,10 @@ class PreventRequestsDuringMaintenance extends BaseMiddleware
         $user = $request->user();
 
         if ($user) {
-            return $user->hasRole('super_admin') || $user->hasRole('admin');
+            if ($user->hasRole('super_admin')) {
+                return true;
+            }
+            return (bool) $user->hasRole('admin');
         }
 
         // 2. Resolve from session cookie if present

@@ -20,6 +20,7 @@ class RecentActivityWidget extends TableWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    #[\Override]
     public function table(Table $table): Table
     {
         return $table
@@ -75,8 +76,8 @@ class RecentActivityWidget extends TableWidget
                 Action::make('inspect')
                     ->label('Inspect')
                     ->icon('heroicon-m-eye')
-                    ->modalHeading(fn (Activity $record): string => "Activity #{$record->id} Inspection")
-                    ->modalDescription(fn (Activity $record): string => "Logged at {$record->created_at?->toDayDateTimeString()}")
+                    ->modalHeading(fn (Activity $activity): string => "Activity #{$activity->id} Inspection")
+                    ->modalDescription(fn (Activity $activity): string => "Logged at {$activity->created_at?->toDayDateTimeString()}")
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
                     ->schema([
@@ -90,10 +91,10 @@ class RecentActivityWidget extends TableWidget
                             ->formatStateUsing(fn (?string $state): string => $state ?: 'N/A'),
                         KeyValueEntry::make('properties.attributes')
                             ->label('New / Updated Attributes')
-                            ->visible(fn (Activity $record): bool => ! empty($record->properties['attributes'] ?? null)),
+                            ->visible(fn (Activity $activity): bool => ! empty($activity->properties['attributes'] ?? null)),
                         KeyValueEntry::make('properties.old')
                             ->label('Previous Attributes')
-                            ->visible(fn (Activity $record): bool => ! empty($record->properties['old'] ?? null)),
+                            ->visible(fn (Activity $activity): bool => ! empty($activity->properties['old'] ?? null)),
                     ]),
             ]);
     }

@@ -142,6 +142,7 @@ class SelfHostedQuickActionsWidget extends Widget
     /**
      * @return array<string, mixed>
      */
+    #[\Override]
     protected function getViewData(): array
     {
         return [

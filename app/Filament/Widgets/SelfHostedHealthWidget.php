@@ -26,6 +26,7 @@ class SelfHostedHealthWidget extends Widget
     /**
      * @return array<string, mixed>
      */
+    #[\Override]
     protected function getViewData(): array
     {
         // 1. Host & Operating System Telemetry

@@ -49,6 +49,7 @@ class UserGrowthChartWidget extends ChartWidget
     /**
      * @return array<string, mixed>
      */
+    #[\Override]
     protected function getData(): array
     {
         $days = match ($this->filter) {

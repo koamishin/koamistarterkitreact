@@ -19,6 +19,7 @@ class SelfHostedVitalsOverviewWidget extends StatsOverviewWidget
 
     protected ?string $pollingInterval = '30s';
 
+    #[\Override]
     protected function getStats(): array
     {
         $totalUsers = User::count();

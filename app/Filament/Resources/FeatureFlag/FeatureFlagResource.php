@@ -174,7 +174,7 @@ class FeatureFlagResource extends Resource
                     }),
                 Action::make('rollback')->label('Restore previous configuration')->authorize('update')->requiresConfirmation()
                     ->schema([
-                        Select::make('revision')->label('Recorded revision')->required()->options(fn (FeatureFlag $record): array => Activity::query()->where('subject_type', $record->getMorphClass())->where('subject_id', $record->id)
+                        Select::make('revision')->label('Recorded revision')->required()->options(fn (FeatureFlag $featureFlag): array => Activity::query()->where('subject_type', $featureFlag->getMorphClass())->where('subject_id', $featureFlag->id)
                             ->where('event', 'updated')->latest()->limit(50)->get()
                             ->mapWithKeys(fn (Activity $activity): array => [$activity->id => $activity->created_at->toDateTimeString().' · Before change #'.$activity->id])->all()),
                     ])->action(function (FeatureFlag $featureFlag, array $data): void {
