@@ -59,6 +59,7 @@ class PreventRequestsDuringMaintenance extends BaseMiddleware
             if ($user->hasRole('super_admin')) {
                 return true;
             }
+
             return (bool) $user->hasRole('admin');
         }
 
