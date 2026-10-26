@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "283598458269e874c255e52f2d97b8c8",
+    "content-hash": "404551ab169f07421b28904018b52374",
     "packages": [
         {
             "name": "alizharb/filament-activity-log",
@@ -7919,6 +7919,85 @@
                 }
             ],
             "time": "2026-06-22T07:55:44+00:00"
+        },
+        {
+            "name": "spiggle/filawarden-core",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/skillbobby/Spiggle-FilaWarden-Core.git",
+                "reference": "e7366f58681bc8f83bd26738ec6f23975dc01f6f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/skillbobby/Spiggle-FilaWarden-Core/zipball/e7366f58681bc8f83bd26738ec6f23975dc01f6f",
+                "reference": "e7366f58681bc8f83bd26738ec6f23975dc01f6f",
+                "shasum": ""
+            },
+            "require": {
+                "dragonmantank/cron-expression": "^3.0",
+                "ext-json": "*",
+                "ext-pdo": "*",
+                "filament/filament": "^4.0 || ^5.0",
+                "illuminate/contracts": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/support": "^11.0 || ^12.0 || ^13.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.16 || ^1.90",
+                "symfony/finder": "^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^9.0 || ^10.0 || ^11.0",
+                "phpunit/phpunit": "^10.5 || ^11.0 || ^12.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spiggle\\FilaWarden\\FilaWardenServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spiggle\\FilaWarden\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Spiggle",
+                    "email": "skillbobby@outlook.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Laravel Operations Intelligence Platform for Filament - Core Edition",
+            "homepage": "https://skillbobby.github.io/spiggle/Spiggle-FilaWarden-Core/",
+            "keywords": [
+                "filament",
+                "filament-plugin",
+                "filament-v4",
+                "filament-v5",
+                "filawarden",
+                "health",
+                "laravel",
+                "monitoring",
+                "security",
+                "spiggle"
+            ],
+            "support": {
+                "issues": "https://github.com/skillbobby/Spiggle-FilaWarden-Core/issues",
+                "source": "https://github.com/skillbobby/Spiggle-FilaWarden-Core"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/skillbobby",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-10-23T18:23:54+00:00"
         },
         {
             "name": "spomky-labs/cbor-php",

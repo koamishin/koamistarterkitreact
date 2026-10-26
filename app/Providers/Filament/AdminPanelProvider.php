@@ -25,6 +25,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use RobertBoes\FilamentPasskeys\FilamentPasskeysPlugin;
+use Spiggle\FilaWarden\FilaWardenPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -86,6 +87,7 @@ class AdminPanelProvider extends PanelProvider
                     ->pluralLabel('Logs')
                     ->navigationGroup('System'),
                 FilamentPasskeysPlugin::make(),
+                FilaWardenPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,
