@@ -210,7 +210,7 @@ test('a failing mcp server does not break tool discovery', function (): void {
 
     $this->app->instance(
         McpServerConnector::class,
-        fakeMcpServerConnector(throws: new RuntimeException('connection refused')),
+        fakeMcpServerConnector(throwable: new RuntimeException('connection refused')),
     );
 
     expect(app(AiConfiguration::class)->mcpTools())->toBe([]);
