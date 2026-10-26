@@ -85,7 +85,7 @@ class PreventRequestsDuringMaintenance extends BaseMiddleware
                 $userId = $session->get(Auth::getName());
 
                 if ($userId) {
-                    $user = User::find($userId);
+                    $user = User::query()->find($userId);
 
                     return $user && ($user->hasRole('super_admin') || $user->hasRole('admin'));
                 }

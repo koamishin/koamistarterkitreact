@@ -62,9 +62,9 @@ class FortifyServiceProvider extends ServiceProvider
             if (app()->environment('local')) {
                 $developerUsers = User::query()
                     ->with('roles')
-                    ->orderBy('id')
-                    ->limit(10)
                     ->get()
+                    ->sortBy('id')
+                    ->take(10)
                     ->map(function (User $user): array {
                         $roleName = $user->roles->first()?->name;
 

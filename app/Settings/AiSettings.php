@@ -142,6 +142,6 @@ class AiSettings extends Settings
     {
         $value = $_ENV[$name] ?? $_SERVER[$name] ?? getenv($name);
 
-        return $value === false || $value === null ? null : (string) $value;
+        return $value === false ? null : (string) $value;
     }
 }

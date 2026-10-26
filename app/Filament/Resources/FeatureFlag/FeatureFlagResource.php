@@ -36,7 +36,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -179,13 +179,15 @@ class FeatureFlagResource extends Resource
                 Action::make('rollback')->label('Restore previous configuration')->authorize('update')->requiresConfirmation()
                     ->schema([
                         Select::make('revision')->label('Recorded revision')->required()->options(fn (FeatureFlag $featureFlag): array => Activity::query()->where('subject_type', $featureFlag->getMorphClass())->where('subject_id', $featureFlag->id)
-                            ->where('event', 'updated')->latest()->limit(50)->get()
-                            ->mapWithKeys(fn (Activity $activity): array => [$activity->id => $activity->created_at->toDateTimeString().' · Before change #'.$activity->id])->all()),
+                            ->where('event', 'updated')->get()->sortByDesc('id')->take(50)
+                            ->mapWithKeys(fn ($activity): array => [$activity->getKey() => ($activity->created_at?->toDateTimeString() ?? '').' · Before change #'.$activity->getKey()])->all()),
                     ])->action(function (FeatureFlag $featureFlag, array $data): void {
                         Gate::authorize('update', $featureFlag);
-                        $revision = Activity::query()->where('subject_type', $featureFlag->getMorphClass())->where('subject_id', $featureFlag->id)
-                            ->where('event', 'updated')->findOrFail($data['revision']);
-                        $previous = array_intersect_key($revision->properties->get('old', []), array_flip($featureFlag->getFillable()));
+                        $model = Activity::query()->where('subject_type', $featureFlag->getMorphClass())->where('subject_id', $featureFlag->id)
+                            ->where('event', 'updated')->where('id', $data['revision'])->firstOrFail();
+                        $properties = $model instanceof Activity ? $model->properties : null;
+                        $old = $properties instanceof Collection ? $properties->get('old', []) : [];
+                        $previous = array_intersect_key(is_array($old) ? $old : [], array_flip($featureFlag->getFillable()));
                         unset($previous['key']);
                         $featureFlag->fill($previous)->save();
                         Notification::make()->success()->title('Previous configuration restored')->send();
@@ -201,18 +203,18 @@ class FeatureFlagResource extends Resource
 
                 return Validator::make($data, FeatureManifest::rules())->validate();
             }),
-            Action::make('sync')->label('Sync code definitions')->authorize(fn (): bool => Auth::user()?->can('create', FeatureFlag::class) ?? false)
+            Action::make('sync')->label('Sync code definitions')->authorize(fn (): bool => Gate::allows('create', FeatureFlag::class))
                 ->action(function (): void {
                     Gate::authorize('create', FeatureFlag::class);
                     FeatureManifest::sync();
                 }),
-            Action::make('export')->label('Export manifest')->authorize(fn (): bool => Auth::user()?->can('viewAny', FeatureFlag::class) ?? false)
+            Action::make('export')->label('Export manifest')->authorize(fn (): bool => Gate::allows('viewAny', FeatureFlag::class))
                 ->action(function () {
                     Gate::authorize('viewAny', FeatureFlag::class);
 
                     return response()->streamDownload(fn (): int => print (json_encode(FeatureManifest::export(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)), 'features.json');
                 }),
-            Action::make('import')->label('Import manifest')->authorize(fn (): bool => Auth::user()?->can('create', FeatureFlag::class) ?? false)
+            Action::make('import')->label('Import manifest')->authorize(fn (): bool => Gate::allows('create', FeatureFlag::class))
                 ->schema([Textarea::make('manifest')->required()->rows(12), Toggle::make('overwrite')->default(false)])
                 ->action(function (array $data): void {
                     Gate::authorize('create', FeatureFlag::class);
@@ -223,7 +225,7 @@ class FeatureFlagResource extends Resource
                     $count = FeatureManifest::import($manifest, (bool) $data['overwrite']);
                     Notification::make()->success()->title("Imported {$count} feature definitions")->send();
                 }),
-            Action::make('release')->label('Publish release')->authorize(fn (): bool => Auth::user()?->can('create', FeatureFlag::class) ?? false)
+            Action::make('release')->label('Publish release')->authorize(fn (): bool => Gate::allows('create', FeatureFlag::class))
                 ->requiresConfirmation()->schema([TextInput::make('version')->required()->maxLength(80)])
                 ->action(function (array $data): void {
                     Gate::authorize('create', FeatureFlag::class);

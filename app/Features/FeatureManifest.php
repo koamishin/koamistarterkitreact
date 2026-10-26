@@ -68,7 +68,8 @@ class FeatureManifest
     {
         return [
             'schema_version' => 1,
-            'features' => FeatureFlag::query()->orderBy('key')->get()->map(fn (FeatureFlag $featureFlag): array => collect($featureFlag->toArray())->only((new FeatureFlag)->getFillable())->all()
+            'features' => FeatureFlag::all()->sortBy('key')->values()->map(
+                fn (FeatureFlag $featureFlag): array => collect($featureFlag->toArray())->only((new FeatureFlag)->getFillable())->all()
             )->all(),
         ];
     }
@@ -111,7 +112,8 @@ class FeatureManifest
     public static function release(string $version): int
     {
         return DB::transaction(function () use ($version): int {
-            $flags = FeatureFlag::query()->where('release_version', $version)->where('stage', FeatureStage::Beta)->lockForUpdate()->get();
+            $flagIds = FeatureFlag::query()->where('release_version', $version)->where('stage', FeatureStage::Beta)->lockForUpdate()->pluck('id')->all();
+            $flags = FeatureFlag::query()->findMany($flagIds);
             foreach ($flags as $flag) {
                 $flag->update(['stage' => FeatureStage::Stable]);
             }

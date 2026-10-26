@@ -41,7 +41,7 @@ class ListUsers extends ListRecords
     {
         return [
             'all' => Tab::make('All Users')
-                ->badge(User::count()),
+                ->badge(User::query()->count()),
 
             'super_admins' => Tab::make('Super Admins')
                 ->icon('heroicon-m-key')

@@ -47,7 +47,8 @@ export default function Welcome() {
                                 Let's get started
                             </h1>
                             <p className="mb-2 text-muted-foreground">
-                                Koamishin Starterkit brings an opinionated, production-ready stack to Laravel 13.
+                                Koamishin Starterkit brings an opinionated,
+                                production-ready stack to Laravel 13.
                                 <br />
                                 We suggest starting with the following.
                             </p>
@@ -177,7 +178,13 @@ export default function Welcome() {
                             >
                                 <defs>
                                     <clipPath id="koamishin-logo-clip">
-                                        <rect x="24" y="20" width="64" height="64" rx="16" />
+                                        <rect
+                                            x="24"
+                                            y="20"
+                                            width="64"
+                                            height="64"
+                                            rx="16"
+                                        />
                                     </clipPath>
                                 </defs>
                                 <rect

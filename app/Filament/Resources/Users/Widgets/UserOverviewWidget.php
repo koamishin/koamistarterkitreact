@@ -18,8 +18,8 @@ class UserOverviewWidget extends StatsOverviewWidget
     #[\Override]
     protected function getStats(): array
     {
-        $totalUsers = User::count();
-        $verifiedUsers = User::whereNotNull('email_verified_at')->count();
+        $totalUsers = User::query()->count();
+        $verifiedUsers = User::query()->whereNotNull('email_verified_at')->count();
         $unverifiedUsers = $totalUsers - $verifiedUsers;
 
         $mfaUsers = User::query()->where(function ($q): void {
@@ -37,7 +37,7 @@ class UserOverviewWidget extends StatsOverviewWidget
         $userTrend = [];
         for ($i = 6; $i >= 0; $i--) {
             $day = Carbon::today()->subDays($i);
-            $userTrend[] = User::whereDate('created_at', $day)->count();
+            $userTrend[] = (float) User::query()->whereDate('created_at', $day)->count();
         }
 
         $verifiedPercentage = $totalUsers > 0 ? (int) round(($verifiedUsers / $totalUsers) * 100) : 0;

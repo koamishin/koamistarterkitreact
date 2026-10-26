@@ -22,14 +22,14 @@ class SelfHostedVitalsOverviewWidget extends StatsOverviewWidget
     #[\Override]
     protected function getStats(): array
     {
-        $totalUsers = User::count();
-        $verifiedUsers = User::whereNotNull('email_verified_at')->count();
+        $totalUsers = User::query()->count();
+        $verifiedUsers = User::query()->whereNotNull('email_verified_at')->count();
 
         // 7-day registration trend
         $userTrend = [];
         for ($i = 6; $i >= 0; $i--) {
             $day = Carbon::today()->subDays($i);
-            $userTrend[] = User::whereDate('created_at', $day)->count();
+            $userTrend[] = (float) User::query()->whereDate('created_at', $day)->count();
         }
 
         // MFA Adoption
@@ -42,19 +42,19 @@ class SelfHostedVitalsOverviewWidget extends StatsOverviewWidget
         $mfaPercent = $totalUsers > 0 ? (int) round(($mfaUsers / $totalUsers) * 100) : 0;
 
         // Activity Stats
-        $todayActivities = Activity::whereDate('created_at', Carbon::today())->count();
-        $totalActivities = Activity::count();
+        $todayActivities = Activity::query()->whereDate('created_at', Carbon::today())->count();
+        $totalActivities = Activity::query()->count();
 
         // Activity trend over last 7 days
         $activityTrend = [];
         for ($i = 6; $i >= 0; $i--) {
             $day = Carbon::today()->subDays($i);
-            $activityTrend[] = Activity::whereDate('created_at', $day)->count();
+            $activityTrend[] = (float) Activity::query()->whereDate('created_at', $day)->count();
         }
 
         // Feature flags
-        $activeFlags = FeatureFlag::where('enabled', true)->count();
-        $totalFlags = FeatureFlag::count();
+        $activeFlags = FeatureFlag::query()->where('enabled', true)->count();
+        $totalFlags = FeatureFlag::query()->count();
 
         return [
             Stat::make('Total Users', (string) $totalUsers)

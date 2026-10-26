@@ -174,7 +174,7 @@ jobs:
         run: php artisan test --compact
 
   frontend:
-    name: Frontend Linting
+    name: Frontend Linting - Auto-fix
     runs-on: ubuntu-latest
     
     steps:
@@ -196,6 +196,15 @@ jobs:
 
       - name: Install Node Dependencies
         run: npm ci
+
+      - name: Run Vite-Plus Format Fix
+        run: npm run check:fix
+
+      - name: Commit Frontend Format Changes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: 'style: apply frontend formatting fixes'
+          commit_options: '--no-verify'
 
       - name: Run Vite-Plus Check (lint + format)
         run: npm run check

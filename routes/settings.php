@@ -7,6 +7,7 @@ use App\Http\Controllers\Settings\FilamentAppAuthenticationController;
 use App\Http\Controllers\Settings\FilamentEmailAuthenticationController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
+use App\Models\User;
 /* @chisel-password-confirmation */
 use Illuminate\Auth\Middleware\RequirePassword;
 /* @end-chisel-password-confirmation */
@@ -56,6 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('settings/appearance', function () {
         FeatureRegistry::initialize();
         $user = Auth::user();
+        $user = $user instanceof User ? $user : null;
 
         return Inertia::render('settings/appearance', [
             'availableFeatures' => [

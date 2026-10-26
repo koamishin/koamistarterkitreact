@@ -193,7 +193,7 @@ class UserResource extends Resource
                         if ($user->has_email_authentication) {
                             return 'Email OTP';
                         }
-                        if ($user->two_factor_secret) {
+                        if ($user->getAttribute('two_factor_secret')) {
                             return 'Fortify 2FA';
                         }
                         if ($user->passkeys()->exists()) {

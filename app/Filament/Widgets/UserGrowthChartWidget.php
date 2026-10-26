@@ -67,13 +67,13 @@ class UserGrowthChartWidget extends ChartWidget
                 $startOfWeek = Carbon::today()->subWeeks($i)->startOfWeek();
                 $endOfWeek = Carbon::today()->subWeeks($i)->endOfWeek();
                 $labels[] = $startOfWeek->format('M d');
-                $userData[] = User::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
+                $userData[] = User::query()->whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
             }
         } else {
             for ($i = $days - 1; $i >= 0; $i--) {
                 $date = Carbon::today()->subDays($i);
                 $labels[] = $date->format($days === 7 ? 'D M d' : 'M d');
-                $userData[] = User::whereDate('created_at', $date)->count();
+                $userData[] = User::query()->whereDate('created_at', $date)->count();
             }
         }
 
