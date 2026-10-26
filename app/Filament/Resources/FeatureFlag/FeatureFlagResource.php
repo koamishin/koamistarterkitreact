@@ -95,7 +95,7 @@ class FeatureFlagResource extends Resource
     {
         return $table->defaultSort('updated_at', 'desc')->columns([
             TextColumn::make('name')->searchable()->sortable()->description(fn (FeatureFlag $featureFlag): string => $featureFlag->key),
-            TextColumn::make('stage')->badge()->color(fn (FeatureStage $featureStage): string => match ($featureStage) {
+            TextColumn::make('stage')->badge()->color(fn (FeatureStage|string|null $state): string => match ($state instanceof FeatureStage ? $state : FeatureStage::tryFrom((string) $state)) {
                 FeatureStage::Stable => 'success', FeatureStage::Beta => 'warning', default => 'gray',
             }),
             IconColumn::make('enabled')->boolean()->label('Live'),

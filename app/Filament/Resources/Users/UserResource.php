@@ -224,7 +224,7 @@ class UserResource extends Resource
 
                 Filter::make('has_mfa')
                     ->label('MFA Enabled')
-                    ->query(fn (Builder $builder) => $builder->where(function ($q): void {
+                    ->query(fn (Builder $query) => $query->where(function ($q): void {
                         $q->whereNotNull('app_authentication_secret')
                             ->orWhere('has_email_authentication', true)
                             ->orWhereNotNull('two_factor_secret')
