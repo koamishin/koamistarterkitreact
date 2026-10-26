@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Enums\RoleEnums;
 use App\Models\User;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Inertia\Testing\AssertableInertia;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
 
@@ -79,7 +80,7 @@ test('login screen does not include developer users in non-local environment', f
     $response = $this->get(route('login'));
 
     $response->assertOk();
-    $response->assertInertia(fn (Assert $assert): \Inertia\Testing\AssertableInertia => $assert
+    $response->assertInertia(fn (Assert $assert): AssertableInertia => $assert
         ->component('auth/login')
         ->where('developerUsers', [])
     );
@@ -100,7 +101,7 @@ test('login screen includes developer users with role labels in local environmen
     $response = $this->get(route('login'));
 
     $response->assertOk();
-    $response->assertInertia(fn (Assert $assert): \Inertia\Testing\AssertableInertia => $assert
+    $response->assertInertia(fn (Assert $assert): AssertableInertia => $assert
         ->component('auth/login')
         ->has('developerUsers', 2)
         ->where('developerUsers.0.email', 'admin@admin.com')

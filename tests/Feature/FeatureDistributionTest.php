@@ -26,7 +26,7 @@ test('feature route middleware enforces backend access and fails closed', functi
 test('frontend receives evaluated booleans not targeting definitions', function (): void {
     $user = User::factory()->create();
     FeatureFlag::factory()->create(['key' => 'beta-search', 'stage' => 'beta', 'rules' => [['attribute' => 'email_domain', 'values' => ['internal.example']]]]);
-    $this->actingAs($user)->get(route('profile.edit'))->assertInertia(fn (AssertableInertia $assertableInertia): \Inertia\Testing\AssertableInertia => $assertableInertia
+    $this->actingAs($user)->get(route('profile.edit'))->assertInertia(fn (AssertableInertia $assertableInertia): AssertableInertia => $assertableInertia
         ->where('featureFlags.beta-search', false)->missing('featureFlags.rules'));
 });
 

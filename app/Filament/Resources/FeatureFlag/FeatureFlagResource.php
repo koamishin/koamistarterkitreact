@@ -30,6 +30,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -55,7 +57,7 @@ class FeatureFlagResource extends Resource
             Section::make('Definition')->description('Ship code once. Control who receives it independently.')
                 ->schema([
                     TextInput::make('key')->required()->maxLength(100)->regex('/^[a-z][a-z0-9_.-]*$/')->unique(ignoreRecord: true)
-                        ->disabled(fn (?FeatureFlag $featureFlag): bool => $featureFlag instanceof \App\Models\FeatureFlag)->dehydrated()
+                        ->disabled(fn (?FeatureFlag $featureFlag): bool => $featureFlag instanceof FeatureFlag)->dehydrated()
                         ->helperText('Permanent key used by backend checks and frontend flags.'),
                     TextInput::make('name')->required()->maxLength(255),
                     Textarea::make('description')->maxLength(5000)->columnSpanFull(),
@@ -160,7 +162,7 @@ class FeatureFlagResource extends Resource
                             ->body('Decision: '.$result['reason'].' · Stage: '.$result['stage'])->info()->send();
                     }),
                 Action::make('history')->label('Audit history')->authorize('view')->modalSubmitAction(false)
-                    ->modalContent(function (FeatureFlag $featureFlag): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
+                    ->modalContent(function (FeatureFlag $featureFlag): Factory|View {
                         Gate::authorize('view', $featureFlag);
 
                         return view('filament.features.history', [
@@ -172,7 +174,7 @@ class FeatureFlagResource extends Resource
                     }),
                 Action::make('rollback')->label('Restore previous configuration')->authorize('update')->requiresConfirmation()
                     ->schema([
-                        Select::make('revision')->label('Recorded revision')->required()->options(fn(FeatureFlag $record): array => Activity::query()->where('subject_type', $record->getMorphClass())->where('subject_id', $record->id)
+                        Select::make('revision')->label('Recorded revision')->required()->options(fn (FeatureFlag $record): array => Activity::query()->where('subject_type', $record->getMorphClass())->where('subject_id', $record->id)
                             ->where('event', 'updated')->latest()->limit(50)->get()
                             ->mapWithKeys(fn (Activity $activity): array => [$activity->id => $activity->created_at->toDateTimeString().' · Before change #'.$activity->id])->all()),
                     ])->action(function (FeatureFlag $featureFlag, array $data): void {

@@ -56,7 +56,7 @@ class FeatureEvaluator
             if (($flag->starts_at && now()->lt($flag->starts_at)) || ($flag->ends_at && now()->gte($flag->ends_at))) {
                 return $decision(false, false, 'schedule');
             }
-            if ($stage === FeatureStage::Beta && (! $user instanceof \App\Models\User || ! $user->beta_opted_in_at)) {
+            if ($stage === FeatureStage::Beta && (! $user instanceof User || ! $user->beta_opted_in_at)) {
                 return $decision(false, false, 'beta_opt_in_required');
             }
         }
@@ -69,7 +69,7 @@ class FeatureEvaluator
             $this->userAssignments[$user->id] ??= FeatureAssignment::query()->where('user_id', $user->id)->get()->groupBy('feature_flag_id');
             $this->roleAssignments[$user->id] ??= RoleFeature::query()->whereIn('role_id', $user->roles->modelKeys())->get()->groupBy('feature');
         }
-        $assignments = $flag && $user instanceof \App\Models\User
+        $assignments = $flag && $user instanceof User
             ? ($this->userAssignments[$user->id]->get($flag->id) ?? collect())->keyBy('kind')
             : collect();
         $override = $assignments->get('override');
@@ -86,7 +86,7 @@ class FeatureEvaluator
             return $decision(true, true, 'user_override');
         }
 
-        if ($flag?->target_roles && (! $user instanceof \App\Models\User || ! $user->hasAnyRole($flag->target_roles))) {
+        if ($flag?->target_roles && (! $user instanceof User || ! $user->hasAnyRole($flag->target_roles))) {
             return $decision(false, false, 'audience');
         }
         foreach ($flag->rules ?? [] as $rule) {
@@ -103,7 +103,7 @@ class FeatureEvaluator
         $reason = $roleValues->isNotEmpty() ? 'role' : 'default';
         $controllable = $flag->user_controllable ?? in_array($key, ['email-notifications', 'marketing-emails', 'activity-tracking'], true);
 
-        if ($preferences && $user instanceof \App\Models\User && $controllable) {
+        if ($preferences && $user instanceof User && $controllable) {
             $preference = $assignments->get('preference');
             if ($preference) {
                 return $decision($preference->active, true, 'preference');

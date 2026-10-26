@@ -158,7 +158,7 @@ test('beta preference validates and guests cannot enroll', function (): void {
     $this->patch(route('profile.beta.update'), ['enabled' => true])->assertRedirect(route('login'));
     $user = User::factory()->create();
     $this->actingAs($user)->patch(route('profile.beta.update'), ['enabled' => 'bad'])->assertSessionHasErrors('enabled');
-    $this->get(route('profile.edit'))->assertInertia(fn (AssertableInertia $assertableInertia): \Inertia\Testing\AssertableInertia => $assertableInertia->where('betaOptedIn', false));
+    $this->get(route('profile.edit'))->assertInertia(fn (AssertableInertia $assertableInertia): AssertableInertia => $assertableInertia->where('betaOptedIn', false));
 });
 
 test('manifest round trips only definitions and refuses accidental overwrite', function (): void {

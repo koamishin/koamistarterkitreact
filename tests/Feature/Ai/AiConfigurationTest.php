@@ -49,7 +49,7 @@ function fakeMcpServerConnector(array $tools = [], ?Throwable $throwable = null)
         {
             $this->servers[] = $server['name'];
 
-            if ($this->throws instanceof \Throwable) {
+            if ($this->throws instanceof Throwable) {
                 throw $this->throws;
             }
 
