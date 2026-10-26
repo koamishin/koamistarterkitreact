@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureFeatureEnabled;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['feature' => EnsureFeatureEnabled::class]);
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+
+        $middleware->replace(
+            Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
+            PreventRequestsDuringMaintenance::class,
+        );
 
         $middleware->web(append: [
             HandleAppearance::class,
