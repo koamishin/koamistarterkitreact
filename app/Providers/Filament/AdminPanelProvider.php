@@ -3,11 +3,9 @@
 namespace App\Providers\Filament;
 
 use AlizHarb\ActivityLog\ActivityLogPlugin;
-use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Dashboard;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
-use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Auth\MultiFactor\Email\EmailAuthentication;
 use Filament\Http\Middleware\Authenticate;
@@ -17,6 +15,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -25,6 +24,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Ipatco\FilamentProfile\FilamentProfilePlugin;
 use RobertBoes\FilamentPasskeys\FilamentPasskeysPlugin;
 use Spiggle\FilaWarden\FilaWardenPlugin;
 
@@ -45,13 +45,6 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => Color::Amber,
-            ])
-            ->profile(EditProfile::class, isSimple: false)
-            ->userMenuItems([
-                'profile' => fn (Action $action): Action => $action
-                    ->label('My profile')
-                    ->icon('heroicon-m-user-circle')
-                    ->url(fn (): string => EditProfile::getUrl()),
             ])
             ->multiFactorAuthentication([
                 AppAuthentication::make()
@@ -90,6 +83,10 @@ class AdminPanelProvider extends PanelProvider
                 FilamentPasskeysPlugin::make(),
                 FilaWardenPlugin::make(),
                 FilamentFlexFieldsPlugin::make(),
+                FilamentProfilePlugin::make()
+                    ->showOnDropdown()
+                    ->icon(Heroicon::OutlinedUserCircle)
+                    ->label('My profile'),
             ])
             ->middleware([
                 EncryptCookies::class,
