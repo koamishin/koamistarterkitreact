@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Profile;
 
 use Filament\Schemas\Components\Component;
@@ -16,6 +18,7 @@ class ProfileInformationForm extends BaseProfileInformationForm
      *
      * @return array<Component>
      */
+    #[\Override]
     public static function configure(EditProfile $page): array
     {
         return [
