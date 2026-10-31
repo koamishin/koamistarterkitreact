@@ -20,11 +20,11 @@ class EnsureSetupCompleted
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (app()->environment('testing')) {
+        if (app()->runningUnitTests()) {
             return $next($request);
         }
 
-        if ($request->is('setup*', 'up', 'healthcheck', 'build/*', 'assets/*', 'livewire/*')) {
+        if ($request->is('setup*', 'up', 'healthcheck', 'build/*', 'assets/*', 'livewire/*', 'developer-login*')) {
             return $next($request);
         }
 
