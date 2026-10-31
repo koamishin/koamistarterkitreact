@@ -77,13 +77,13 @@ class SetupController extends Controller
         ]);
     }
 
-    public function store(SetupRequest $request): RedirectResponse
+    public function store(SetupRequest $setupRequest): RedirectResponse
     {
         if ($this->isAlreadyInstalled()) {
             return redirect()->route('home');
         }
 
-        $validated = $request->validated();
+        $validated = $setupRequest->validated();
 
         // 1. Ensure migrations are up to date
         Artisan::call('migrate', ['--force' => true]);

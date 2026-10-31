@@ -28,7 +28,7 @@ test('setup screen can be visited when not installed', function (): void {
     $response = $this->get(route('setup'));
 
     $response->assertOk();
-    $response->assertInertia(fn (Assert $page) => $page
+    $response->assertInertia(fn (Assert $assert): \Inertia\Testing\AssertableInertia => $assert
         ->component('setup')
         ->has('requirements')
         ->has('timezones')
@@ -88,7 +88,7 @@ test('setup initializes super admin account and settings', function (): void {
     $this->assertAuthenticatedAs($admin);
     expect(File::exists(storage_path('installed')))->toBeTrue();
 
-    $settings = app(ApplicationDetailsSettings::class);
-    expect($settings->site_name)->toBe('Self-Hosted Production')
-        ->and($settings->timezone)->toBe('America/New_York');
+    $applicationDetailsSettings = app(ApplicationDetailsSettings::class);
+    expect($applicationDetailsSettings->site_name)->toBe('Self-Hosted Production')
+        ->and($applicationDetailsSettings->timezone)->toBe('America/New_York');
 });
