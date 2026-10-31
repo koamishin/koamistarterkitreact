@@ -9,6 +9,9 @@ use App\Filament\Widgets\SelfHostedHealthWidget;
 use App\Filament\Widgets\SelfHostedQuickActionsWidget;
 use App\Filament\Widgets\SelfHostedVitalsOverviewWidget;
 use App\Filament\Widgets\UserGrowthChartWidget;
+use App\Services\Backup\InstanceBackupService;
+use App\Services\Release\ReleaseService;
+use App\Services\Testing\SystemDiagnosticService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Dashboard as BaseDashboard;
@@ -16,7 +19,9 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Filament\Widgets\WidgetConfiguration;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Artisan;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
 class Dashboard extends BaseDashboard
@@ -106,7 +111,7 @@ class Dashboard extends BaseDashboard
                 ->modalDescription('Environment and server configuration snapshot')
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Close')
-                ->modalContent(view('filament.pages.diagnostics-modal', [
+                ->modalContent(fn (): View => view('filament.pages.diagnostics-modal', [
                     'phpVersion' => PHP_VERSION,
                     'laravelVersion' => app()->version(),
                     'os' => php_uname('s').' '.php_uname('r').' ('.php_uname('m').')',
@@ -120,6 +125,55 @@ class Dashboard extends BaseDashboard
                     'cacheDriver' => config('cache.default'),
                     'queueDriver' => config('queue.default'),
                 ])),
+
+            Action::make('checkUpdates')
+                ->label('Updates')
+                ->icon('heroicon-o-arrow-up-circle')
+                ->color('gray')
+                ->modalHeading('Upstream Release Sentinel')
+                ->modalDescription('Automated semantic version checker')
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Close')
+                ->modalContent(function (): View {
+                    $releaseService = app(ReleaseService::class);
+                    $check = $releaseService->check(force: true);
+
+                    return view('filament.pages.updates-modal', [
+                        'currentVersion' => $check['current_version'],
+                        'latestVersion' => $check['latest_version'],
+                        'isUpdateAvailable' => $check['is_update_available'],
+                        'releaseTitle' => $check['release_title'],
+                        'releaseNotes' => $check['release_notes'],
+                        'publishedAt' => $check['published_at'],
+                        'htmlUrl' => $check['html_url'],
+                    ]);
+                }),
+
+            Action::make('systemTesters')
+                ->label('Testers')
+                ->icon('heroicon-o-wrench-screwdriver')
+                ->color('gray')
+                ->modalHeading('Subsystem Integration Testers')
+                ->modalDescription('Automated connection and read/write checks')
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Close')
+                ->modalContent(fn (): View => view('filament.pages.system-testers-modal', [
+                    'tests' => app(SystemDiagnosticService::class)->runAll(),
+                ])),
+
+            Action::make('createBackup')
+                ->label('Backup')
+                ->icon('heroicon-o-archive-box-arrow-down')
+                ->color('gray')
+                ->requiresConfirmation()
+                ->modalHeading('Create Disaster Recovery Archive?')
+                ->modalDescription('This generates a ZIP archive containing the active database and storage uploads.')
+                ->action(function (): BinaryFileResponse {
+                    $backupService = app(InstanceBackupService::class);
+                    $zipFile = $backupService->create();
+
+                    return response()->download($zipFile)->deleteFileAfterSend(true);
+                }),
 
             Action::make('settings')
                 ->label('Instance Settings')
