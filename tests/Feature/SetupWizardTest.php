@@ -6,6 +6,7 @@ use App\Enums\RoleEnums;
 use App\Models\User;
 use App\Settings\ApplicationDetailsSettings;
 use Illuminate\Support\Facades\File;
+use Inertia\Testing\AssertableInertia;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
 
@@ -28,7 +29,7 @@ test('setup screen can be visited when not installed', function (): void {
     $response = $this->get(route('setup'));
 
     $response->assertOk();
-    $response->assertInertia(fn (Assert $assert): \Inertia\Testing\AssertableInertia => $assert
+    $response->assertInertia(fn (Assert $assert): AssertableInertia => $assert
         ->component('setup')
         ->has('requirements')
         ->has('timezones')
