@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\DeveloperLoginController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Setup\SetupController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -37,6 +38,9 @@ Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect']
 Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])
     ->where('provider', $socialProviders)
     ->name('auth.social.callback');
+
+Route::get('setup', [SetupController::class, 'create'])->name('setup');
+Route::post('setup', [SetupController::class, 'store'])->name('setup.store');
 
 Route::post('developer-login', [DeveloperLoginController::class, 'login'])
     ->name('developer-login')

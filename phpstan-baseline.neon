@@ -43,6 +43,12 @@ parameters:
 			path: app/Filament/Clusters/Settings/Pages/ApplicationFeaturesSettingsPage.php
 
 		-
+			rawMessage: Using nullsafe property access "?->email" on left side of ?? is unnecessary. Use -> instead.
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Filament/Clusters/Settings/Pages/MailSettingsPage.php
+
+		-
 			rawMessage: Access to an undefined property App\Models\SocialAccount::$user.
 			identifier: property.notFound
 			count: 1
@@ -223,6 +229,18 @@ parameters:
 			path: tests/Feature/Filament/FilamentDashboardTest.php
 
 		-
+			rawMessage: 'Call to an undefined method Livewire\Features\SupportTesting\Testable::assertSchemaComponentState().'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Filament/MailSettingsPageTest.php
+
+		-
+			rawMessage: 'Call to an undefined method Livewire\Features\SupportTesting\Testable::callAction().'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Filament/MailSettingsPageTest.php
+
+		-
 			rawMessage: 'Call to an undefined method Livewire\Features\SupportTesting\Testable::fillForm().'
 			identifier: method.notFound
 			count: 6
@@ -287,6 +305,12 @@ parameters:
 			identifier: pest.expectation.redundant
 			count: 1
 			path: tests/Feature/SetupStarterKitTest.php
+
+		-
+			rawMessage: 'Call to an undefined method Illuminate\Testing\TestResponse::assertInertia().'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/SetupWizardTest.php
 
 		-
 			rawMessage: 'Calling toBeTrue() on Expectation<true>; assertion is redundant.'

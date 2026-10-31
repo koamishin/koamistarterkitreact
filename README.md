@@ -162,6 +162,28 @@ Default test accounts (populated via database seeder):
 - **Super Admin**: `admin@admin.com` / `password`
 - **Regular User**: `user@user.com` / `password`
 
+### 🐳 Self-Hosted Deployment (Docker Compose)
+
+Run the production-ready all-in-one container (FrankenPHP + Octane + SQLite):
+
+```bash
+# 1. Copy environment template
+cp .env.example .env
+
+# 2. Start the container (auto-migrates and serves on port 8000)
+docker compose up -d
+```
+
+#### Optional Scale Profiles
+
+```bash
+# Start with PostgreSQL instead of SQLite
+docker compose --profile postgres up -d
+
+# Start full stack (App + PostgreSQL + Redis + Dedicated Worker)
+docker compose --profile full up -d
+```
+
 ---
 
 ## 🛠️ Testing & Code Quality
