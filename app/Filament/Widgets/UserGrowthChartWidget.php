@@ -7,6 +7,7 @@ namespace App\Filament\Widgets;
 use App\Models\User;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class UserGrowthChartWidget extends ChartWidget
 {
@@ -70,10 +71,26 @@ class UserGrowthChartWidget extends ChartWidget
                 $userData[] = User::query()->whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
             }
         } else {
+            $startDate = Carbon::today()->subDays($days - 1)->startOfDay();
+            $driver = DB::getDriverName();
+            $dateExpr = match ($driver) {
+                'sqlite' => "strftime('%Y-%m-%d', created_at)",
+                'pgsql' => "to_char(created_at, 'YYYY-MM-DD')",
+                default => 'DATE(created_at)',
+            };
+
+            $dailyCounts = User::query()
+                ->where('created_at', '>=', $startDate)
+                ->selectRaw("{$dateExpr} as date_str, count(*) as count")
+                ->groupBy('date_str')
+                ->pluck('count', 'date_str')
+                ->all();
+
             for ($i = $days - 1; $i >= 0; $i--) {
                 $date = Carbon::today()->subDays($i);
                 $labels[] = $date->format($days === 7 ? 'D M d' : 'M d');
-                $userData[] = User::query()->whereDate('created_at', $date)->count();
+                $dateKey = $date->format('Y-m-d');
+                $userData[] = (int) ($dailyCounts[$dateKey] ?? 0);
             }
         }
 

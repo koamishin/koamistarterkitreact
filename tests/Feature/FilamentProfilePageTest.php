@@ -31,7 +31,7 @@ test('profile menu item points to the profile plugin page', function (): void {
 });
 
 test('profile page renders the plugin sections', function (): void {
-    Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+    Role::findOrCreate('super_admin', 'web');
 
     $user = User::factory()->create();
     $user->assignRole('super_admin');

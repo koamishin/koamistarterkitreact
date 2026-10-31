@@ -9,6 +9,7 @@ use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Models\Activity;
 
 class SelfHostedVitalsOverviewWidget extends StatsOverviewWidget
@@ -26,10 +27,25 @@ class SelfHostedVitalsOverviewWidget extends StatsOverviewWidget
         $verifiedUsers = User::query()->whereNotNull('email_verified_at')->count();
 
         // 7-day registration trend
+        $startDate = Carbon::today()->subDays(6)->startOfDay();
+        $driver = DB::getDriverName();
+        $dateExpr = match ($driver) {
+            'sqlite' => "strftime('%Y-%m-%d', created_at)",
+            'pgsql' => "to_char(created_at, 'YYYY-MM-DD')",
+            default => 'DATE(created_at)',
+        };
+
+        $userCounts = User::query()
+            ->where('created_at', '>=', $startDate)
+            ->selectRaw("{$dateExpr} as date_str, count(*) as count")
+            ->groupBy('date_str')
+            ->pluck('count', 'date_str')
+            ->all();
+
         $userTrend = [];
         for ($i = 6; $i >= 0; $i--) {
-            $day = Carbon::today()->subDays($i);
-            $userTrend[] = (float) User::query()->whereDate('created_at', $day)->count();
+            $dateKey = Carbon::today()->subDays($i)->format('Y-m-d');
+            $userTrend[] = (float) ($userCounts[$dateKey] ?? 0);
         }
 
         // MFA Adoption
@@ -46,10 +62,17 @@ class SelfHostedVitalsOverviewWidget extends StatsOverviewWidget
         $totalActivities = Activity::query()->count();
 
         // Activity trend over last 7 days
+        $activityCounts = Activity::query()
+            ->where('created_at', '>=', $startDate)
+            ->selectRaw("{$dateExpr} as date_str, count(*) as count")
+            ->groupBy('date_str')
+            ->pluck('count', 'date_str')
+            ->all();
+
         $activityTrend = [];
         for ($i = 6; $i >= 0; $i--) {
-            $day = Carbon::today()->subDays($i);
-            $activityTrend[] = (float) Activity::query()->whereDate('created_at', $day)->count();
+            $dateKey = Carbon::today()->subDays($i)->format('Y-m-d');
+            $activityTrend[] = (float) ($activityCounts[$dateKey] ?? 0);
         }
 
         // Feature flags
